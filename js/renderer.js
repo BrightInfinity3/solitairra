@@ -2140,6 +2140,267 @@ var Renderer = (function () {
 
         c.restore();
       }
+    },
+
+    // ----- V11: Apple-emoji-inspired leaping dolphin -----
+    // Per Emojipedia: "light-blue dolphin with a white belly in full profile,
+    // leaping… short snout curving down to a prominent dorsal fin and tail."
+    // Key recognition features: domed melon (not pointed like a fish), smile line,
+    // dorsal fin, pectoral fin visible below body, flukes spread at the tail.
+    {
+      name: 'Iconic leaping (emoji style)',
+      draw: function (c, x, y, size, flip) {
+        c.save();
+        c.translate(x, y);
+        if (flip) c.rotate(Math.PI);
+        c.rotate(-Math.PI * 0.18);
+        var s = size / 20;
+        c.translate(-0.3 * s, 1 * s);
+
+        // Body silhouette — melon-forward leaping arc.
+        c.beginPath();
+        // Rostrum tip (front of short snout)
+        c.moveTo(8.5 * s, 0.4 * s);
+        // Upper rostrum curving up into the domed MELON (key dolphin feature)
+        c.bezierCurveTo(8.3 * s, -1 * s, 7.6 * s, -2.2 * s, 6.2 * s, -3 * s);
+        // Rounded crown of the melon — arches over the head
+        c.bezierCurveTo(4 * s, -4 * s, 1.5 * s, -4.2 * s, -0.5 * s, -3.5 * s);
+        // Along the back toward the dorsal fin base
+        c.bezierCurveTo(-1.2 * s, -3.2 * s, -1.6 * s, -3 * s, -2 * s, -2.8 * s);
+        // Classic falcate (swept-back) dorsal fin
+        c.bezierCurveTo(-1.8 * s, -5.8 * s, -2.4 * s, -6.4 * s, -3.2 * s, -5.6 * s);
+        c.bezierCurveTo(-3 * s, -4.4 * s, -3.6 * s, -3.4 * s, -4 * s, -2.6 * s);
+        // Back tapering toward the peduncle (tail base)
+        c.bezierCurveTo(-5.4 * s, -1.8 * s, -6.6 * s, -1 * s, -7 * s, -0.2 * s);
+        // Peduncle wrist
+        c.bezierCurveTo(-7.1 * s, 0.2 * s, -7 * s, 0.5 * s, -6.8 * s, 0.8 * s);
+        // --- Horizontal tail flukes: two lobes splayed outward ---
+        // Upper fluke tip (back-up)
+        c.lineTo(-9.5 * s, -0.6 * s);
+        // Fluke notch (between the two lobes)
+        c.bezierCurveTo(-8.3 * s, 0.6 * s, -7.4 * s, 1.2 * s, -6.8 * s, 1.6 * s);
+        // Lower fluke tip (back-down)
+        c.lineTo(-9.4 * s, 3.2 * s);
+        // Return along underside to belly
+        c.bezierCurveTo(-6.6 * s, 2.2 * s, -4 * s, 2 * s, -1.5 * s, 2 * s);
+        // Chin + throat curving up to rostrum
+        c.bezierCurveTo(2 * s, 2.2 * s, 5 * s, 1.8 * s, 7.5 * s, 1 * s);
+        c.bezierCurveTo(8 * s, 0.8 * s, 8.4 * s, 0.6 * s, 8.5 * s, 0.4 * s);
+        c.closePath();
+
+        // Counter-shaded light-blue body with white belly (emoji palette)
+        var g = c.createLinearGradient(0, -5 * s, 0, 3 * s);
+        g.addColorStop(0,    '#1565a8');      // medium-blue back
+        g.addColorStop(0.55, '#6aa6d5');      // flank
+        g.addColorStop(0.85, '#c8e0f2');      // upper belly
+        g.addColorStop(1,    '#ffffff');      // white belly
+        c.fillStyle = g;
+        c.fill();
+        c.strokeStyle = '#0a3265';
+        c.lineWidth = 0.5 * s;
+        c.lineJoin = 'round';
+        c.stroke();
+
+        // Visible pectoral fin (curved, hanging down-forward from chest)
+        c.save();
+        c.beginPath();
+        c.moveTo(3.4 * s, 1.3 * s);
+        c.bezierCurveTo(4.8 * s, 2.3 * s, 5.2 * s, 4 * s, 3.8 * s, 4.6 * s);
+        c.bezierCurveTo(3 * s, 3.8 * s, 2.2 * s, 2.4 * s, 2.2 * s, 1.6 * s);
+        c.bezierCurveTo(2.4 * s, 1.2 * s, 3 * s, 1.2 * s, 3.4 * s, 1.3 * s);
+        c.closePath();
+        var pg = c.createLinearGradient(2 * s, 1 * s, 5 * s, 4.5 * s);
+        pg.addColorStop(0, '#1565a8');
+        pg.addColorStop(1, '#0a3265');
+        c.fillStyle = pg;
+        c.fill();
+        c.strokeStyle = '#0a3265';
+        c.lineWidth = 0.35 * s;
+        c.stroke();
+        c.restore();
+
+        // Upturned smile (characteristic dolphin feature)
+        c.beginPath();
+        c.moveTo(7.2 * s, 0.6 * s);
+        c.bezierCurveTo(6.2 * s, 1.2 * s, 5 * s, 1.3 * s, 4 * s, 1 * s);
+        c.strokeStyle = '#0a3265';
+        c.lineWidth = 0.4 * s;
+        c.lineCap = 'round';
+        c.stroke();
+
+        // Eye
+        c.beginPath();
+        c.arc(5.4 * s, -1.8 * s, 0.45 * s, 0, Math.PI * 2);
+        c.fillStyle = '#041124';
+        c.fill();
+        c.beginPath();
+        c.arc(5.58 * s, -2 * s, 0.17 * s, 0, Math.PI * 2);
+        c.fillStyle = 'rgba(255, 255, 255, 0.95)';
+        c.fill();
+
+        c.restore();
+      }
+    },
+
+    // ----- V12: Heraldic "embowed naiant" — medieval-style horizontal dolphin -----
+    // Historical heraldic dolphins are shown horizontally ("naiant") with the back
+    // arched upward ("embowed"), often more fish-like than realistic. Stylised and
+    // elegant — looks like an ornament on a coat of arms.
+    {
+      name: 'Heraldic embowed',
+      draw: function (c, x, y, size, flip) {
+        c.save();
+        c.translate(x, y);
+        if (flip) c.rotate(Math.PI);
+        var s = size / 20;
+
+        // Main body — horizontal fish-like shape, back arched upward
+        c.beginPath();
+        // Nose tip on the right
+        c.moveTo(8.5 * s, 0);
+        // Upper rostrum curving up into the arched back
+        c.bezierCurveTo(8 * s, -2 * s, 5 * s, -4 * s, 1 * s, -4.2 * s);
+        c.bezierCurveTo(-3 * s, -4.2 * s, -5 * s, -3 * s, -6.5 * s, -1.2 * s);
+        // Curled tail — sweeping back and under
+        c.bezierCurveTo(-7.5 * s, -1.6 * s, -8.5 * s, -0.8 * s, -8 * s, 0.4 * s);
+        c.lineTo(-6.5 * s, -0.2 * s);
+        // Lower body / belly
+        c.bezierCurveTo(-5.5 * s, 1.5 * s, -3 * s, 2.5 * s, 0, 2.8 * s);
+        c.bezierCurveTo(3 * s, 3 * s, 6 * s, 2 * s, 8.5 * s, 0);
+        c.closePath();
+        c.fillStyle = '#1a3f6e';
+        c.fill();
+        c.strokeStyle = '#0d2c52';
+        c.lineWidth = 0.5 * s;
+        c.lineJoin = 'round';
+        c.stroke();
+
+        // Small triangular dorsal fin on the arched back
+        c.beginPath();
+        c.moveTo(-1 * s, -4.1 * s);
+        c.lineTo(-1.5 * s, -6.5 * s);
+        c.lineTo(-3 * s, -3.8 * s);
+        c.closePath();
+        c.fillStyle = '#0d2c52';
+        c.fill();
+        c.strokeStyle = '#0d2c52';
+        c.lineWidth = 0.35 * s;
+        c.stroke();
+
+        // Curled tail fluke — elegant heraldic swoosh back and up
+        c.beginPath();
+        c.moveTo(-8 * s, 0.4 * s);
+        c.bezierCurveTo(-10.5 * s, 1.5 * s, -10.5 * s, -2 * s, -8.5 * s, -2.2 * s);
+        c.bezierCurveTo(-7.5 * s, -1.2 * s, -7.5 * s, 0, -8 * s, 0.4 * s);
+        c.closePath();
+        c.fillStyle = '#1a3f6e';
+        c.fill();
+        c.strokeStyle = '#0d2c52';
+        c.lineWidth = 0.4 * s;
+        c.stroke();
+
+        // Pectoral fin tucked under the body
+        c.beginPath();
+        c.moveTo(3 * s, 2.2 * s);
+        c.bezierCurveTo(3.5 * s, 3.5 * s, 2 * s, 4.5 * s, 0.5 * s, 4 * s);
+        c.bezierCurveTo(1 * s, 3 * s, 2 * s, 2.3 * s, 3 * s, 2.2 * s);
+        c.closePath();
+        c.fillStyle = '#0d2c52';
+        c.fill();
+
+        // Decorative fish-scale hint (a few curved lines on the flank)
+        c.save();
+        c.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+        c.lineWidth = 0.25 * s;
+        c.lineCap = 'round';
+        for (var i = 0; i < 3; i++) {
+          c.beginPath();
+          c.arc(-1 + i * 2 * s, 0, 0.8 * s, Math.PI * 1.15, Math.PI * 1.85);
+          c.stroke();
+        }
+        c.restore();
+
+        // Eye
+        c.beginPath();
+        c.arc(6.5 * s, -1 * s, 0.35 * s, 0, Math.PI * 2);
+        c.fillStyle = '#fff';
+        c.fill();
+        c.beginPath();
+        c.arc(6.5 * s, -1 * s, 0.18 * s, 0, Math.PI * 2);
+        c.fillStyle = '#041124';
+        c.fill();
+
+        // Smile line
+        c.beginPath();
+        c.moveTo(8 * s, 0.4 * s);
+        c.bezierCurveTo(7.5 * s, 1 * s, 6.5 * s, 1.2 * s, 5.5 * s, 0.8 * s);
+        c.strokeStyle = '#0d2c52';
+        c.lineWidth = 0.3 * s;
+        c.lineCap = 'round';
+        c.stroke();
+
+        c.restore();
+      }
+    },
+
+    // ----- V13: Minimalist bottlenose — clean silhouette, melon + flukes emphasized -----
+    // Strips everything except the three features that distinguish a dolphin from a fish:
+    // (1) a rounded MELON rather than a pointed head, (2) a swept-back DORSAL fin, and
+    // (3) a pair of HORIZONTAL tail flukes at the end of a narrow peduncle.
+    {
+      name: 'Minimalist bottlenose',
+      draw: function (c, x, y, size, flip) {
+        c.save();
+        c.translate(x, y);
+        if (flip) c.rotate(Math.PI);
+        c.rotate(-Math.PI * 0.16);
+        var s = size / 20;
+        c.translate(-0.3 * s, 0.7 * s);
+
+        // Single-tone silhouette
+        c.beginPath();
+        c.moveTo(8.6 * s, 0.6 * s);
+        // Short rostrum
+        c.bezierCurveTo(8.5 * s, -0.8 * s, 7.6 * s, -1.6 * s, 6.2 * s, -1.8 * s);
+        // Strongly-domed melon (the key feature)
+        c.bezierCurveTo(3.8 * s, -2.4 * s, 0.5 * s, -3.4 * s, -1 * s, -3.2 * s);
+        // Back toward dorsal base
+        c.bezierCurveTo(-1.6 * s, -3 * s, -1.8 * s, -2.8 * s, -2 * s, -2.6 * s);
+        // Falcate dorsal fin (swept back)
+        c.bezierCurveTo(-1.6 * s, -5 * s, -2.4 * s, -5.6 * s, -3.4 * s, -4.8 * s);
+        c.bezierCurveTo(-3 * s, -3.6 * s, -3.6 * s, -3 * s, -4 * s, -2.2 * s);
+        // Back to peduncle (narrowing tail stalk)
+        c.bezierCurveTo(-5.4 * s, -1.4 * s, -6.6 * s, -0.6 * s, -7 * s, 0);
+        // Horizontal fluke spread (two lobes)
+        c.lineTo(-9.4 * s, -0.8 * s);
+        c.bezierCurveTo(-8.4 * s, 0.4 * s, -7.6 * s, 1 * s, -7 * s, 1.4 * s);
+        c.lineTo(-9.4 * s, 3 * s);
+        // Belly back to rostrum
+        c.bezierCurveTo(-6.5 * s, 2.2 * s, -3 * s, 2 * s, 0, 2.2 * s);
+        c.bezierCurveTo(4 * s, 2.2 * s, 7 * s, 1.6 * s, 8.6 * s, 0.6 * s);
+        c.closePath();
+        c.fillStyle = '#1a3f6e';
+        c.fill();
+
+        // Small white belly curve — single defining detail
+        c.save();
+        c.beginPath();
+        c.moveTo(6 * s, 1.8 * s);
+        c.bezierCurveTo(3 * s, 2.3 * s, -1 * s, 2.3 * s, -4 * s, 2.1 * s);
+        c.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+        c.lineWidth = 0.5 * s;
+        c.lineCap = 'round';
+        c.stroke();
+        c.restore();
+
+        // Eye
+        c.beginPath();
+        c.arc(5.5 * s, -1 * s, 0.35 * s, 0, Math.PI * 2);
+        c.fillStyle = '#fff';
+        c.fill();
+
+        c.restore();
+      }
     }
   ];
 
@@ -2235,9 +2496,9 @@ var Renderer = (function () {
     c.fillStyle = '#3a1a0a';
     c.fill();
 
-    // Smile — moved up a smidge (2.7→2.45*s).
+    // Smile — moved up another smidge (2.45→2.2*s).
     c.beginPath();
-    c.arc(0, 2.45 * s, 1.6 * s, 0.08 * Math.PI, 0.92 * Math.PI);
+    c.arc(0, 2.2 * s, 1.6 * s, 0.08 * Math.PI, 0.92 * Math.PI);
     c.strokeStyle = 'rgba(40, 20, 5, 0.9)';
     c.lineWidth = 0.368 * s;
     c.lineCap = 'round';
