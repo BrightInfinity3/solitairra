@@ -95,16 +95,17 @@
 <p class="subtitle">All 10 ranks per suit across every suit-style mode. Laser variants included for reference — the Laser mode button is currently hidden in Options but all code paths are intact.</p>
 <div id="viewer"></div>
 
-<script src="js/textures.js?v=5"></script>
-<script src="js/cards.js?v=5"></script>
-<script src="js/game.js?v=5"></script>
-<script src="js/renderer.js?v=5"></script>
+<script src="js/textures.js?v=6"></script>
+<script src="js/cards.js?v=6"></script>
+<script src="js/game.js?v=6"></script>
+<script src="js/renderer.js?v=6"></script>
 <script>
 (function() {
   'use strict';
 
-  // Show every card style: rank-1 (no-face-card default), plus the full face-mode deck.
-  var ALL_RANKS = ['1', 'A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+  // Show every card style: rank-1 (no-face-card default), full numeric run 2-10,
+  // then A/J/Q/K grouped together at the end.
+  var ALL_RANKS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'A', 'J', 'Q', 'K'];
   var SUITS = ['diamonds', 'hearts', 'spades', 'clubs'];
 
   var viewer = document.getElementById('viewer');
