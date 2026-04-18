@@ -2401,6 +2401,179 @@ var Renderer = (function () {
 
         c.restore();
       }
+    },
+
+    // ----- V14: Reference-image leaping — cartoon illustration style with splash -----
+    // Emulates a user-supplied dolphin illustration: deep navy body, pale belly,
+    // pronounced melon and smile, big pectoral fin, visible tail flukes, and a
+    // water splash trailing below the tail.
+    {
+      name: 'Splashing leap (illustration style)',
+      draw: function (c, x, y, size, flip) {
+        c.save();
+        c.translate(x, y);
+        if (flip) c.rotate(Math.PI);
+        c.rotate(-Math.PI * 0.22);
+        var s = size / 20;
+        c.translate(-0.2 * s, 0.8 * s);
+
+        var navyDeep = '#0e2a4c';
+        var navyMid  = '#1e4478';
+        var navyUp   = '#3a67a0';
+        var blueBelly= '#a8c6e0';
+
+        // --- Water splash below the tail (drawn first, behind body) ---
+        c.save();
+        c.translate(-7 * s, 2.5 * s);
+        // Big splash shape (light blue, watery)
+        c.beginPath();
+        c.moveTo(-3 * s, 0);
+        c.bezierCurveTo(-3.5 * s, -1.5 * s, -2 * s, -2.5 * s, 0, -2 * s);
+        c.bezierCurveTo(1 * s, -1 * s, 0.5 * s, 0.5 * s, -0.5 * s, 1.2 * s);
+        c.bezierCurveTo(-1.5 * s, 1.6 * s, -2.5 * s, 1.2 * s, -3 * s, 0);
+        c.closePath();
+        c.fillStyle = 'rgba(168, 198, 224, 0.85)';
+        c.fill();
+        c.strokeStyle = 'rgba(14, 42, 76, 0.6)';
+        c.lineWidth = 0.3 * s;
+        c.stroke();
+        // Small droplets scattered around
+        c.fillStyle = 'rgba(168, 198, 224, 0.85)';
+        var drops = [
+          [-4 * s, -1 * s, 0.25 * s],
+          [-4.5 * s, 0.5 * s, 0.3 * s],
+          [-2 * s, -3 * s, 0.35 * s],
+          [ 1.2 * s, -2.6 * s, 0.28 * s],
+          [ 1.5 * s, 0.8 * s, 0.22 * s],
+          [-3.2 * s, 1.8 * s, 0.32 * s],
+          [-0.5 * s, 2 * s, 0.25 * s],
+          [ 0.6 * s, 1.5 * s, 0.2 * s]
+        ];
+        for (var di = 0; di < drops.length; di++) {
+          c.beginPath();
+          c.arc(drops[di][0], drops[di][1], drops[di][2], 0, Math.PI * 2);
+          c.fill();
+        }
+        // A short splash streak
+        c.save();
+        c.strokeStyle = 'rgba(168, 198, 224, 0.7)';
+        c.lineWidth = 0.25 * s;
+        c.lineCap = 'round';
+        c.beginPath();
+        c.moveTo(-4.5 * s, 1.2 * s);
+        c.bezierCurveTo(-3 * s, 1.4 * s, -2 * s, 1.6 * s, -1 * s, 1.5 * s);
+        c.stroke();
+        c.beginPath();
+        c.moveTo(-5.5 * s, -0.5 * s);
+        c.bezierCurveTo(-4.5 * s, -0.3 * s, -3.5 * s, -0.2 * s, -3 * s, 0);
+        c.stroke();
+        c.restore();
+        c.restore();
+
+        // --- Main body silhouette ---
+        c.beginPath();
+        // Rostrum tip
+        c.moveTo(8.6 * s, 0.6 * s);
+        // Upper rostrum into melon
+        c.bezierCurveTo(8.4 * s, -0.9 * s, 7.5 * s, -2.2 * s, 6 * s, -3 * s);
+        // Rounded crown of the melon
+        c.bezierCurveTo(3.8 * s, -4 * s, 1 * s, -4.2 * s, -0.8 * s, -3.5 * s);
+        // Pre-dorsal back
+        c.bezierCurveTo(-1.4 * s, -3.2 * s, -1.8 * s, -3 * s, -2.1 * s, -2.8 * s);
+        // Falcate dorsal fin — swept back, pointier at the peak
+        c.bezierCurveTo(-1.8 * s, -5 * s, -2.4 * s, -5.9 * s, -3.2 * s, -5.4 * s);
+        c.bezierCurveTo(-3 * s, -4.3 * s, -3.6 * s, -3.4 * s, -4 * s, -2.6 * s);
+        // Back tapering to peduncle
+        c.bezierCurveTo(-5.4 * s, -1.8 * s, -6.6 * s, -1 * s, -7 * s, -0.2 * s);
+        // Peduncle wrist
+        c.bezierCurveTo(-7.1 * s, 0.2 * s, -7 * s, 0.5 * s, -6.8 * s, 0.8 * s);
+        // Upper fluke
+        c.lineTo(-9.4 * s, -0.6 * s);
+        // Fluke notch
+        c.bezierCurveTo(-8.2 * s, 0.5 * s, -7.4 * s, 1.1 * s, -6.8 * s, 1.5 * s);
+        // Lower fluke
+        c.lineTo(-9.3 * s, 2.9 * s);
+        // Underside back to belly
+        c.bezierCurveTo(-6.4 * s, 2 * s, -4 * s, 1.9 * s, -1.5 * s, 2 * s);
+        // Chin to rostrum
+        c.bezierCurveTo(2 * s, 2.2 * s, 5 * s, 1.8 * s, 7.5 * s, 1.1 * s);
+        c.bezierCurveTo(8.1 * s, 0.9 * s, 8.4 * s, 0.7 * s, 8.6 * s, 0.6 * s);
+        c.closePath();
+
+        // Counter-shaded navy body (deep navy top → pale blue belly)
+        var bodyGrad = c.createLinearGradient(0, -5 * s, 0, 3 * s);
+        bodyGrad.addColorStop(0,    navyDeep);
+        bodyGrad.addColorStop(0.45, navyMid);
+        bodyGrad.addColorStop(0.82, navyUp);
+        bodyGrad.addColorStop(1,    blueBelly);
+        c.fillStyle = bodyGrad;
+        c.fill();
+        c.strokeStyle = navyDeep;
+        c.lineWidth = 0.5 * s;
+        c.lineJoin = 'round';
+        c.stroke();
+
+        // Belly line — pale curve separating light belly from body flank
+        c.save();
+        c.beginPath();
+        c.moveTo(7 * s, 1 * s);
+        c.bezierCurveTo(4 * s, 1.7 * s, 0 * s, 1.9 * s, -3 * s, 1.8 * s);
+        c.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+        c.lineWidth = 0.35 * s;
+        c.lineCap = 'round';
+        c.stroke();
+        c.restore();
+
+        // Back highlight — thin lighter band along the upper flank
+        c.save();
+        c.beginPath();
+        c.moveTo(5.5 * s, -2.8 * s);
+        c.bezierCurveTo(3 * s, -3.4 * s, 0 * s, -3.4 * s, -1.5 * s, -3 * s);
+        c.strokeStyle = 'rgba(130, 165, 210, 0.55)';
+        c.lineWidth = 0.3 * s;
+        c.lineCap = 'round';
+        c.stroke();
+        c.restore();
+
+        // --- Big, clearly-visible pectoral fin ---
+        c.save();
+        c.beginPath();
+        c.moveTo(3.2 * s, 1 * s);
+        c.bezierCurveTo(5 * s, 2 * s, 5.7 * s, 4 * s, 4.5 * s, 5 * s);
+        c.bezierCurveTo(3.5 * s, 4.6 * s, 2.4 * s, 3 * s, 2 * s, 1.8 * s);
+        c.bezierCurveTo(2 * s, 1.2 * s, 2.6 * s, 0.9 * s, 3.2 * s, 1 * s);
+        c.closePath();
+        var pg = c.createLinearGradient(2 * s, 1 * s, 5 * s, 5 * s);
+        pg.addColorStop(0, navyMid);
+        pg.addColorStop(1, navyDeep);
+        c.fillStyle = pg;
+        c.fill();
+        c.strokeStyle = navyDeep;
+        c.lineWidth = 0.4 * s;
+        c.stroke();
+        c.restore();
+
+        // Smile
+        c.beginPath();
+        c.moveTo(7.6 * s, 0.5 * s);
+        c.bezierCurveTo(6.6 * s, 1.2 * s, 5.2 * s, 1.4 * s, 3.8 * s, 1 * s);
+        c.strokeStyle = navyDeep;
+        c.lineWidth = 0.4 * s;
+        c.lineCap = 'round';
+        c.stroke();
+
+        // Eye
+        c.beginPath();
+        c.arc(5.4 * s, -1.8 * s, 0.45 * s, 0, Math.PI * 2);
+        c.fillStyle = '#041124';
+        c.fill();
+        c.beginPath();
+        c.arc(5.55 * s, -2 * s, 0.16 * s, 0, Math.PI * 2);
+        c.fillStyle = 'rgba(255, 255, 255, 0.95)';
+        c.fill();
+
+        c.restore();
+      }
     }
   ];
 
@@ -2423,8 +2596,9 @@ var Renderer = (function () {
     var faceRy = 5.566 * s;
     var faceTopY = faceCy - faceRy;   // ≈ -4.57*s
 
-    // Ears: 15% wider, same centre-to-centre spacing so they reach further out on the head.
-    var earHalfW = 1.15 * s;
+    // Ears: 10% wider than previous (1.15 → 1.265*s), and spread further apart
+    // on the head (centres moved from ±1.5*s to ±2.1*s).
+    var earHalfW = 1.265 * s;
     var earHalfH = 3.2 * s;
     var earCy = faceTopY - earHalfH + 0.2 * s;   // bottoms tangent with head top
     function drawEar(cx, tilt) {
@@ -2445,8 +2619,8 @@ var Renderer = (function () {
       c.fill();
       c.restore();
     }
-    drawEar(-1.5 * s, -0.12);
-    drawEar( 1.5 * s,  0.12);
+    drawEar(-2.1 * s, -0.18);
+    drawEar( 2.1 * s,  0.18);
 
     // Face (opaque, covers ear roots)
     c.save();
@@ -2504,7 +2678,9 @@ var Renderer = (function () {
     c.lineCap = 'round';
     c.stroke();
 
-    // Whiskers
+    // Whiskers — start at the muzzle edge (muzzle is centred at (0, 2.6*s) with
+    // rx=2.3125*s, ry=1.625*s; the ellipse intersection at these whisker y-values
+    // is ≈ ±2.25*s), then extend outward past the face.
     c.save();
     c.strokeStyle = 'rgba(40, 20, 5, 0.55)';
     c.lineWidth = 0.18 * s;
@@ -2512,10 +2688,10 @@ var Renderer = (function () {
     var wy = [2.4 * s, 3 * s];
     for (var wi = 0; wi < wy.length; wi++) {
       c.beginPath();
-      c.moveTo(-1.1 * s, wy[wi]);
-      c.lineTo(-3.6 * s, wy[wi] - 0.2 * s);
-      c.moveTo( 1.1 * s, wy[wi]);
-      c.lineTo( 3.6 * s, wy[wi] - 0.2 * s);
+      c.moveTo(-2.25 * s, wy[wi]);
+      c.lineTo(-4.6 * s, wy[wi] - 0.25 * s);
+      c.moveTo( 2.25 * s, wy[wi]);
+      c.lineTo( 4.6 * s, wy[wi] - 0.25 * s);
       c.stroke();
     }
     c.restore();

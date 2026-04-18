@@ -101,7 +101,7 @@ All three were renamed to avoid colliding with SoloTerra's data when both games 
 - Big centered gold "S" monogram (46–48px Cinzel 900, gold-foil fill with subtle outer glow). Replaces the former two-line "Soli / Tairra" text.
 
 ## Cache Busting
-`?v=9` on all CSS/JS tags in `Solitairra.html` and `card-viewer.html`. Bump on each deploy.
+`?v=10` on all CSS/JS tags in `Solitairra.html` and `card-viewer.html`. Bump on each deploy.
 
 ## Deployment
 - **Not yet deployed.** Currently GitHub-only per user request ("publish to GitHub for now, not Railway")
