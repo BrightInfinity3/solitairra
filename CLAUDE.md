@@ -34,7 +34,7 @@ Options → "Card Suit Style" exposes two modes (Animals & Classic). Laser mode 
 | Laser    | Diodes   | Prisms  | Blades  | Combiners | No      | **Hidden** (code preserved) | Yes (scheme per suit + blade style) |
 
 ### Animal Pip Colors
-- Dolphins (diamonds): deep navy family. **Main game uses a plain navy-diamond placeholder** (`drawDolphinPlaceholder`) — no dolphin art in the game yet. Design exploration happens in `DOLPHIN_VARIANTS` (an array of fresh concepts) and is only exercised by the card-viewer. Each variant is written from scratch: front-facing baby face, single-stroke swoosh, infinity loop, Monogram D, dotwork, postage stamp, wave jumper, pixel 8-bit, Celtic knot pair, Art Nouveau flourish. API: `Renderer.setDolphinVariant(idx|null)`, `getDolphinVariantCount()`, `getDolphinVariantName(i)`. Passing `null` reverts the pip to the placeholder.
+- Dolphins (diamonds): **V11 "Iconic leaping (emoji style)"** is the chosen design — emoji-inspired leaping bottlenose with domed melon, falcate dorsal, pectoral fin, horizontal tail flukes, counter-shaded light-blue body (medium blue back → white belly), upturned smile just under the eye. Defined in `DOLPHIN_VARIANTS[10]`; `DEFAULT_DOLPHIN_VARIANT = 10`. The array still contains the full set of alternate concepts (baby face, swoosh, infinity, Monogram D, dotwork, postage stamp, wave jumper, pixel 8-bit, Celtic knot, Art Nouveau, heraldic, minimalist, splashing-leap) and the card-viewer cycles through them for reference. API: `Renderer.setDolphinVariant(idx|null)` — passing `null` reverts to V11.
 - Hares (hearts): illustration uses saddle-brown `#8B4513`; **rank text font is pink `#E91E63`**. Face only, smiling. Tall ears sit above the head (bottoms tangent with the face top). Head rx 5.082*s, ry 5.566*s. Ear half-width 1.15*s, same centre-to-centre spacing. Muzzle patch 25% larger (rx 2.31*s, ry 1.625*s); smile stroke 15% thicker (0.368*s).
 - Spiders (spades): black `#1a1a1a`, 8 bent legs radiating, cephalothorax with yellow + white eye dots.
 - Cubs (clubs): dark brown `#3E2723`. Face only, smiling. Two round ears sit at the upper-side head corners and are drawn before the head; the fully-opaque head then covers their inner halves so only the outer crescent shows — classic teddy-bear silhouette.
@@ -101,7 +101,7 @@ All three were renamed to avoid colliding with SoloTerra's data when both games 
 - Big centered gold "S" monogram (46–48px Cinzel 900, gold-foil fill with subtle outer glow). Replaces the former two-line "Soli / Tairra" text.
 
 ## Cache Busting
-`?v=10` on all CSS/JS tags in `Solitairra.html` and `card-viewer.html`. Bump on each deploy.
+`?v=11` on all CSS/JS tags in `Solitairra.html` and `card-viewer.html`. Bump on each deploy.
 
 ## Deployment
 - **Not yet deployed.** Currently GitHub-only per user request ("publish to GitHub for now, not Railway")

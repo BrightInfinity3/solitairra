@@ -1543,46 +1543,17 @@ var Renderer = (function () {
   // ================================================================
 
   // ----------------------------------------------------------------
-  // Dolphin pip — placeholder for the MAIN GAME only.
-  // The old per-style designs (drawDolphinStyle1..8) were removed so we can
-  // iterate on a fresh concept. While we design, the game renders a plain
-  // navy diamond placeholder — clearly not meant to be the final art.
-  // All experimental designs live in the DOLPHIN_VARIANTS array below and
-  // are exercised only by the card-viewer.
+  // Dolphin pip. The chosen design for Solitairra is variant V11
+  // "Iconic leaping (emoji style)" — see DOLPHIN_VARIANTS[10] below.
+  // The array also holds a bunch of alternate designs the card-viewer
+  // can cycle through for future iteration.
   // ----------------------------------------------------------------
 
-  // Placeholder: plain navy diamond. No dolphin iconography.
-  function drawDolphinPlaceholder(c, x, y, size, flip) {
-    c.save();
-    c.translate(x, y);
-    if (flip) c.rotate(Math.PI);
-    var s = size / 20;
-    c.beginPath();
-    c.moveTo(0, -6 * s);
-    c.lineTo(4.6 * s, 0);
-    c.lineTo(0, 6 * s);
-    c.lineTo(-4.6 * s, 0);
-    c.closePath();
-    var g = c.createLinearGradient(0, -6 * s, 0, 6 * s);
-    g.addColorStop(0, '#0d2c52');
-    g.addColorStop(1, '#4a6b96');
-    c.fillStyle = g;
-    c.fill();
-    c.strokeStyle = 'rgba(8, 30, 70, 0.9)';
-    c.lineWidth = 0.55 * s;
-    c.lineJoin = 'round';
-    c.stroke();
-    c.restore();
-  }
-
-  // Experimental dolphin designs. Each is written from scratch — fundamentally
-  // different concept, not variations of the same silhouette. The card-viewer
-  // sets `_activeDolphinVariant` to the index it wants, renders some cards,
-  // and clears it back to null.
-  var _activeDolphinVariant = null;
+  var DEFAULT_DOLPHIN_VARIANT = 10;  // V11 "Iconic leaping (emoji style)"
+  var _activeDolphinVariant = DEFAULT_DOLPHIN_VARIANT;
   function setDolphinVariant(idx) {
     if (idx === null || idx === undefined || idx < 0) {
-      _activeDolphinVariant = null;
+      _activeDolphinVariant = DEFAULT_DOLPHIN_VARIANT;
     } else if (idx < DOLPHIN_VARIANTS.length) {
       _activeDolphinVariant = idx;
     }
@@ -1593,12 +1564,9 @@ var Renderer = (function () {
     return v ? v.name : '';
   }
 
-  // Main dispatcher: viewer variant if set, otherwise the plain placeholder.
+  // Main dispatcher
   function drawDolphinPip(c, x, y, size, flip) {
-    if (_activeDolphinVariant !== null) {
-      return DOLPHIN_VARIANTS[_activeDolphinVariant].draw(c, x, y, size, flip);
-    }
-    return drawDolphinPlaceholder(c, x, y, size, flip);
+    return DOLPHIN_VARIANTS[_activeDolphinVariant].draw(c, x, y, size, flip);
   }
 
   // --- DOLPHIN_VARIANTS — one fresh design per entry ---
@@ -2219,10 +2187,10 @@ var Renderer = (function () {
         c.stroke();
         c.restore();
 
-        // Upturned smile (characteristic dolphin feature)
+        // Upturned smile — moved up to sit just under the eye.
         c.beginPath();
-        c.moveTo(7.2 * s, 0.6 * s);
-        c.bezierCurveTo(6.2 * s, 1.2 * s, 5 * s, 1.3 * s, 4 * s, 1 * s);
+        c.moveTo(7.4 * s, -0.4 * s);
+        c.bezierCurveTo(6.4 * s, 0.3 * s, 5 * s, 0.4 * s, 3.8 * s, 0 * s);
         c.strokeStyle = '#0a3265';
         c.lineWidth = 0.4 * s;
         c.lineCap = 'round';

@@ -95,10 +95,10 @@
 <p class="subtitle">All 10 ranks per suit across every suit-style mode. Laser variants included for reference — the Laser mode button is currently hidden in Options but all code paths are intact.</p>
 <div id="viewer"></div>
 
-<script src="js/textures.js?v=10"></script>
-<script src="js/cards.js?v=10"></script>
-<script src="js/game.js?v=10"></script>
-<script src="js/renderer.js?v=10"></script>
+<script src="js/textures.js?v=11"></script>
+<script src="js/cards.js?v=11"></script>
+<script src="js/game.js?v=11"></script>
+<script src="js/renderer.js?v=11"></script>
 <script>
 (function() {
   'use strict';
@@ -157,29 +157,30 @@
     document.fonts.load('bold 11px Cinzel')
   ]).then(function() {
     // ================================
-    // ANIMALS (default mode in Solitairra). Diamonds uses the placeholder pip
-    // while we iterate on a dolphin design in the variants section below.
+    // ANIMALS (default mode in Solitairra). Diamonds renders the chosen
+    // dolphin variant (V11 "Iconic leaping"). Other variants are shown
+    // for reference in the alternates section below.
     // ================================
     setAllMode('animals');
-    Renderer.setDolphinVariant(null);   // placeholder, not a dolphin
-    addSectionHeader('Animals (Default — dolphin is a plain navy placeholder)');
-    addSuitSection('Diamonds (placeholder)', 'dolphins', 'diamonds');
-    addSuitSection('Hares (Hearts)',         'hares',    'hearts');
-    addSuitSection('Spiders (Spades)',       'spiders',  'spades');
-    addSuitSection('Cubs (Clubs)',           'cubs',     'clubs');
+    Renderer.setDolphinVariant(null);   // null → reset to the default (V11)
+    addSectionHeader('Animals (Default — V11 Iconic leaping)');
+    addSuitSection('Dolphins (Diamonds)', 'dolphins', 'diamonds');
+    addSuitSection('Hares (Hearts)',      'hares',    'hearts');
+    addSuitSection('Spiders (Spades)',    'spiders',  'spades');
+    addSuitSection('Cubs (Clubs)',        'cubs',     'clubs');
 
     // ================================
-    // DOLPHIN DESIGN VARIANTS — fresh concepts written from scratch.
+    // DOLPHIN DESIGN ALTERNATES — kept for reference / future iteration.
     // Each row shows one variant across all 14 ranks.
     // ================================
-    addSectionHeader('Dolphin Design Variants — fresh concepts (pick a favourite!)');
+    addSectionHeader('Dolphin Design Alternates (reference)');
     var variantCount = Renderer.getDolphinVariantCount();
     for (var vi = 0; vi < variantCount; vi++) {
       Renderer.setDolphinVariant(vi);
       var label = 'Variant ' + (vi + 1) + ' — ' + Renderer.getDolphinVariantName(vi);
       addSuitSection(label, 'dolphins', 'diamonds');
     }
-    Renderer.setDolphinVariant(null);   // reset to placeholder
+    Renderer.setDolphinVariant(null);   // back to the chosen default (V11)
 
     // ================================
     // CLASSIC
