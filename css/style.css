@@ -72,8 +72,12 @@ html, body {
   justify-content: center;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.5s ease, visibility 0.5s ease;
   z-index: 1;
+  /* Transitions removed: opacity/visibility transitions here were getting
+     stuck in some browsers, leaving the game screen perpetually invisible
+     after the first click of Play (the HUD rendered from the canvas but
+     the PixiJS card stage never came through). Screens now switch
+     instantly, which is visually fine and reliable. */
 }
 
 .screen.active {
