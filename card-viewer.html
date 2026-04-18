@@ -95,10 +95,10 @@
 <p class="subtitle">All 10 ranks per suit across every suit-style mode. Laser variants included for reference — the Laser mode button is currently hidden in Options but all code paths are intact.</p>
 <div id="viewer"></div>
 
-<script src="js/textures.js?v=6"></script>
-<script src="js/cards.js?v=6"></script>
-<script src="js/game.js?v=6"></script>
-<script src="js/renderer.js?v=6"></script>
+<script src="js/textures.js?v=7"></script>
+<script src="js/cards.js?v=7"></script>
+<script src="js/game.js?v=7"></script>
+<script src="js/renderer.js?v=7"></script>
 <script>
 (function() {
   'use strict';
@@ -160,11 +160,32 @@
     // ANIMALS (default mode in Solitairra)
     // ================================
     setAllMode('animals');
-    addSectionHeader('Animals (Default)');
+    Renderer.setDolphinStyle(1);
+    addSectionHeader('Animals (Default — Dolphin Style 1)');
     addSuitSection('Dolphins (Diamonds)', 'dolphins', 'diamonds');
     addSuitSection('Hares (Hearts)',     'hares',    'hearts');
     addSuitSection('Spiders (Spades)',   'spiders',  'spades');
     addSuitSection('Cubs (Clubs)',       'cubs',     'clubs');
+
+    // ================================
+    // DOLPHIN DESIGN VARIANTS (1-8)
+    // ================================
+    addSectionHeader('Dolphin Design Variants (pick one!)');
+    var dolphinStyles = [
+      { n: 1, label: 'Style 1 — Realistic Bottlenose (gradient + pectoral fin)' },
+      { n: 2, label: 'Style 2 — Flat Silhouette (single-tone fill)' },
+      { n: 3, label: 'Style 3 — Geometric / Angular (low-poly 3-tone)' },
+      { n: 4, label: 'Style 4 — Kawaii / Cute (big eye, chubby body)' },
+      { n: 5, label: 'Style 5 — Line Art (outline only, no fill)' },
+      { n: 6, label: 'Style 6 — Jumping Through a Ring (decorative)' },
+      { n: 7, label: 'Style 7 — Ink Brush (painterly, textured)' },
+      { n: 8, label: 'Style 8 — Double Dolphin (two intertwined)' }
+    ];
+    for (var ds = 0; ds < dolphinStyles.length; ds++) {
+      Renderer.setDolphinStyle(dolphinStyles[ds].n);
+      addSuitSection(dolphinStyles[ds].label, 'dolphins', 'diamonds');
+    }
+    Renderer.setDolphinStyle(1);   // reset to default
 
     // ================================
     // CLASSIC

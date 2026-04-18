@@ -33,18 +33,18 @@ Options → "Card Suit Style" exposes two modes (Animals & Classic). Laser mode 
 | Classic  | ♦ Diamonds | ♥ Hearts | ♠ Spades | ♣ Clubs | No    | Yes           | No |
 | Laser    | Diodes   | Prisms  | Blades  | Combiners | No      | **Hidden** (code preserved) | Yes (scheme per suit + blade style) |
 
-### Animal Pip Colors (single fixed scheme)
-- Dolphins (diamonds): deep navy `#1a3f6e`. Refined single-silhouette leaping dolphin — smooth C-curve body, pointed/angular dorsal fin, slim pointed tail flukes, one pectoral fin curving down from the chest. Subtle belly highlight line for shape definition. Rotated −0.22π so the body leaps up-and-right.
-- Hares (hearts): saddle-brown `#8B4513`. **Face only**, smiling. Tall ears sit **above** the head — bottoms tangent with the top of the face. Head is 10% larger than the previous pass (rx 5.082*s, ry 5.566*s). Ears are 15% wider (halfW 1.15*s, same centre-to-centre spacing so they reach further out on the head).
+### Animal Pip Colors
+- Dolphins (diamonds): deep navy family (`#0d2c52` → `#1a3f6e` → `#4a6b96` → `#b8cee3`). **Eight design variants** in `renderer.js` — `drawDolphinStyle1`…`drawDolphinStyle8`, dispatched by `drawDolphinPip` based on `activeDolphinStyle` (set via `Renderer.setDolphinStyle(1..8)`). Main game defaults to **Style 1 — realistic bottlenose**. Variants: 2 flat silhouette, 3 geometric polygonal, 4 kawaii cute, 5 line art outline, 6 through-a-ring, 7 ink-brush, 8 double dolphin. Card-viewer cycles through all 8 for side-by-side comparison.
+- Hares (hearts): illustration uses saddle-brown `#8B4513`; **rank text font is pink `#E91E63`**. Face only, smiling. Tall ears sit above the head (bottoms tangent with the face top). Head rx 5.082*s, ry 5.566*s. Ear half-width 1.15*s, same centre-to-centre spacing. Muzzle patch 25% larger (rx 2.31*s, ry 1.625*s); smile stroke 15% thicker (0.368*s).
 - Spiders (spades): black `#1a1a1a`, 8 bent legs radiating, cephalothorax with yellow + white eye dots.
-- Cubs (clubs): dark brown `#3E2723`. **Face only**, smiling. Two round ears sit at the upper-side **head corners** (x=±3.8*s, y=-3.5*s) and are drawn **before** the head; the fully-opaque head then covers their inner halves so only the outer crescent shows — classic teddy-bear silhouette.
+- Cubs (clubs): dark brown `#3E2723`. Face only, smiling. Two round ears sit at the upper-side head corners and are drawn before the head; the fully-opaque head then covers their inner halves so only the outer crescent shows — classic teddy-bear silhouette.
 
 All animal pips:
 - Normalize to `s = size / 20`, fit within roughly `14*s` visual footprint (same pip cell as Laser).
-- **Hares get a 25% size boost for counts 2-10** in `renderPips()`.
-- **Cubs get an additional 10% on top of that (total 1.25 × 1.10 = 37.5%)** so the teddy-bear face reads clearly.
-- **Rank-1 pips get a +25% size bump** across all suits: custom/animals `40` (was 32), classic `50` (was 40).
-- **Face-card centre pip matches the 2-10 pip size for its suit** — diamonds/spades 16, hearts 20, clubs 22; classic 20. Previously a flat 14.
+- **Hares get a 25% size boost for counts 2-10**; **Cubs get 25 × 1.10 = 37.5%** so both faces read at pip size.
+- **Rank-1 pips get +25% then +15% (32 → 40 → 46)** across all suits; classic rank-1 scales 40 → 50 → 57.5 correspondingly.
+- **Face-card centre pip matches the 2-10 pip size for its suit** (diamonds/spades 16, hearts 20, clubs 22; classic 20).
+- Each animal pip function **translates the drawing so the visual centre (top-of-pip ↔ bottom-of-pip midpoint) sits on the pip's origin**, so rows of pips have equal top and bottom margins on the card. Example: hare translates by `(0, 2.1*s)` to compensate for the ears extending far above the face.
 - Use the CUSTOM_PIP_LAYOUTS wide spread (2-3-3-2 for rank 10, etc.) — same as Laser.
 - Skip the corner Unicode symbol (the rank alone is shown in corners).
 - No ground shadow — silhouettes render cleanly on the card surface.
@@ -101,7 +101,7 @@ All three were renamed to avoid colliding with SoloTerra's data when both games 
 - Big centered gold "S" monogram (46–48px Cinzel 900, gold-foil fill with subtle outer glow). Replaces the former two-line "Soli / Tairra" text.
 
 ## Cache Busting
-`?v=6` on all CSS/JS tags in `Solitairra.html` and `card-viewer.html`. Bump on each deploy.
+`?v=7` on all CSS/JS tags in `Solitairra.html` and `card-viewer.html`. Bump on each deploy.
 
 ## Deployment
 - **Not yet deployed.** Currently GitHub-only per user request ("publish to GitHub for now, not Railway")

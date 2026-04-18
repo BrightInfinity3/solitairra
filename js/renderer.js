@@ -224,7 +224,11 @@ var Renderer = (function () {
   }
 
   function getSuitColor(suit) {
-    if (suitSkins[suit] === 'animals') return ANIMAL_COLORS[suit];
+    if (suitSkins[suit] === 'animals') {
+      // Rank text for Hares (hearts) is pink, not the brown of the illustration itself.
+      if (suit === 'hearts') return '#E91E63';
+      return ANIMAL_COLORS[suit];
+    }
     if (suit === 'diamonds' && suitSkins.diamonds === 'laser') {
       return DIODE_SCHEMES[activeDiodeScheme].color;
     }
@@ -1538,75 +1542,71 @@ var Renderer = (function () {
   //  No ground shadows — silhouettes only.
   // ================================================================
 
-  // Dolphin — elegant leaping silhouette inspired by navy-blue illustrated card art.
-  // One continuous smooth body + triangular dorsal fin + pointed tail flukes,
-  // plus a single pectoral fin curving down from the chest. Refined lines, not cartoonish.
-  // Coordinate frame (pre-rotation): +x = forward (head), -x = tail, +y = belly.
-  function drawDolphinPip(c, x, y, size, flip) {
-    c.save();
-    c.translate(x, y);
-    if (flip) c.rotate(Math.PI);
-    c.rotate(-Math.PI * 0.22);    // leap angle: head up-and-right
-    var s = size / 20;
+  // ----------------------------------------------------------------
+  // Dolphin pip styles — 8 different designs. `drawDolphinPip` dispatches
+  // to the currently active style. Main game uses style 1; card-viewer
+  // cycles through all 8 to pick a favourite.
+  // ----------------------------------------------------------------
+  var activeDolphinStyle = 1;
+  function setDolphinStyle(n) {
+    n = Math.max(1, Math.min(8, Number(n) || 1));
+    activeDolphinStyle = n;
+  }
+  function getDolphinStyle() { return activeDolphinStyle; }
 
-    var navyDark   = '#0d2c52';    // deep navy (back)
-    var navyMid    = '#1a3f6e';    // primary body tone
-    var navyLight  = '#4a6b96';    // lighter flank
-    var bellyLight = '#b8cee3';    // pale belly
+  // Shared base palette
+  var DOL_DARK = '#0d2c52';
+  var DOL_MID  = '#1a3f6e';
+  var DOL_LIGHT= '#4a6b96';
+  var DOL_PALE = '#b8cee3';
+  var DOL_STROKE = 'rgba(8, 30, 70, 0.9)';
 
-    // --- Main body silhouette — smooth C-curve with dorsal fin and fluked tail ---
+  // --- Shared classic body path, centred on origin (post-rotation).
+  // Pre-rotation, head at +x, tail at -x. The caller rotates for leap angle.
+  function _dolphinBodyPath(c, s) {
     c.beginPath();
-    c.moveTo(8.6 * s, -0.6 * s);                                              // rostrum tip
-    // Upper rostrum curving into the melon
+    c.moveTo(8.6 * s, -0.6 * s);
     c.bezierCurveTo(8.3 * s, -2.2 * s, 7 * s, -3.4 * s, 5 * s, -3.9 * s);
-    // Over the head and along the back
     c.bezierCurveTo(3 * s, -4.3 * s, 1 * s, -4.2 * s, -0.8 * s, -3.6 * s);
     c.bezierCurveTo(-1.5 * s, -3.3 * s, -1.9 * s, -3.1 * s, -2.2 * s, -2.9 * s);
-    // Dorsal fin — slim and pointed, sweeping back
-    c.lineTo(-2.6 * s, -7 * s);                                               // peak
-    c.lineTo(-4.2 * s, -2.5 * s);                                             // trailing edge
-    // Back tapering toward the peduncle
+    c.lineTo(-2.6 * s, -7 * s);
+    c.lineTo(-4.2 * s, -2.5 * s);
     c.bezierCurveTo(-5.4 * s, -1.8 * s, -6.6 * s, -1 * s, -7.4 * s, -0.2 * s);
     c.bezierCurveTo(-7.4 * s, 0.3 * s, -7.3 * s, 0.6 * s, -7.2 * s, 0.8 * s);
-    // Upper tail fluke — angular, pointed up-back
     c.lineTo(-10 * s, -0.8 * s);
-    c.bezierCurveTo(-8.6 * s, 0.8 * s, -7.6 * s, 1.8 * s, -6.8 * s, 2.4 * s); // fluke notch
-    // Lower tail fluke — angular, pointed down-back
+    c.bezierCurveTo(-8.6 * s, 0.8 * s, -7.6 * s, 1.8 * s, -6.8 * s, 2.4 * s);
     c.lineTo(-9.6 * s, 3.6 * s);
-    // Under the peduncle and belly forward
     c.bezierCurveTo(-6.4 * s, 2.4 * s, -4.2 * s, 2.2 * s, -2 * s, 2.4 * s);
     c.bezierCurveTo(0 * s, 2.6 * s, 2 * s, 2.4 * s, 4 * s, 1.8 * s);
-    // Lower jaw up to rostrum
     c.bezierCurveTo(5.8 * s, 1.2 * s, 7.2 * s, 0.4 * s, 8.2 * s, -0.2 * s);
     c.lineTo(8.6 * s, -0.6 * s);
     c.closePath();
+  }
 
-    // Dark back → light belly gradient
+  // -------- STYLE 1: Realistic detailed bottlenose with gradient + pectoral fin --------
+  function drawDolphinStyle1(c, x, y, size, flip) {
+    c.save();
+    c.translate(x, y);
+    if (flip) c.rotate(Math.PI);
+    c.rotate(-Math.PI * 0.22);
+    var s = size / 20;
+    // Centre the pip on its visual midpoint (rotated bounding box)
+    c.translate(-0.2 * s, 1.2 * s);
+
+    _dolphinBodyPath(c, s);
     var bodyGrad = c.createLinearGradient(0, -6.5 * s, 0, 3 * s);
-    bodyGrad.addColorStop(0,    navyDark);
-    bodyGrad.addColorStop(0.55, navyMid);
-    bodyGrad.addColorStop(0.82, navyLight);
-    bodyGrad.addColorStop(1,    bellyLight);
+    bodyGrad.addColorStop(0, DOL_DARK);
+    bodyGrad.addColorStop(0.55, DOL_MID);
+    bodyGrad.addColorStop(0.82, DOL_LIGHT);
+    bodyGrad.addColorStop(1, DOL_PALE);
     c.fillStyle = bodyGrad;
     c.fill();
-    c.strokeStyle = 'rgba(8, 30, 70, 0.9)';
+    c.strokeStyle = DOL_STROKE;
     c.lineWidth = 0.55 * s;
     c.lineJoin = 'round';
     c.stroke();
 
-    // Subtle belly highlight line for extra shape definition
-    c.save();
-    c.beginPath();
-    c.moveTo(6 * s, 1.2 * s);
-    c.bezierCurveTo(3 * s, 2.1 * s, -1 * s, 2.3 * s, -3.5 * s, 2.3 * s);
-    c.strokeStyle = 'rgba(255, 255, 255, 0.35)';
-    c.lineWidth = 0.35 * s;
-    c.lineCap = 'round';
-    c.stroke();
-    c.restore();
-
-    // --- Pectoral fin (single, curving from the chest down-forward) ---
-    c.save();
+    // Pectoral fin
     c.beginPath();
     c.moveTo(4 * s, 0.9 * s);
     c.bezierCurveTo(5.8 * s, 1.7 * s, 6.4 * s, 3.4 * s, 5.4 * s, 4.4 * s);
@@ -1614,56 +1614,365 @@ var Renderer = (function () {
     c.bezierCurveTo(2.6 * s, 1.2 * s, 3.2 * s, 0.8 * s, 4 * s, 0.9 * s);
     c.closePath();
     var pecGrad = c.createLinearGradient(2.5 * s, 1 * s, 6 * s, 4.5 * s);
-    pecGrad.addColorStop(0, navyMid);
-    pecGrad.addColorStop(1, navyDark);
+    pecGrad.addColorStop(0, DOL_MID);
+    pecGrad.addColorStop(1, DOL_DARK);
     c.fillStyle = pecGrad;
     c.fill();
-    c.strokeStyle = 'rgba(8, 30, 70, 0.9)';
+    c.strokeStyle = DOL_STROKE;
     c.lineWidth = 0.45 * s;
     c.stroke();
-    c.restore();
 
-    // --- Face details ---
-    // Eye
+    // Eye + mouth
     c.beginPath();
     c.arc(5.5 * s, -2.2 * s, 0.5 * s, 0, Math.PI * 2);
-    c.fillStyle = '#041124';
-    c.fill();
+    c.fillStyle = '#041124'; c.fill();
     c.beginPath();
     c.arc(5.68 * s, -2.4 * s, 0.18 * s, 0, Math.PI * 2);
-    c.fillStyle = 'rgba(255,255,255,0.9)';
-    c.fill();
+    c.fillStyle = 'rgba(255,255,255,0.9)'; c.fill();
 
-    // Mouth — subtle upturned curve
     c.beginPath();
     c.moveTo(7.6 * s, -0.3 * s);
     c.bezierCurveTo(6.6 * s, 0.3 * s, 5 * s, 0.4 * s, 3.6 * s, 0.1 * s);
-    c.strokeStyle = 'rgba(8, 30, 70, 0.95)';
-    c.lineWidth = 0.42 * s;
-    c.lineCap = 'round';
-    c.stroke();
+    c.strokeStyle = DOL_STROKE; c.lineWidth = 0.42 * s; c.lineCap = 'round'; c.stroke();
 
     c.restore();
   }
 
+  // -------- STYLE 2: Flat silhouette (single colour, no gradient, minimal details) --------
+  function drawDolphinStyle2(c, x, y, size, flip) {
+    c.save();
+    c.translate(x, y);
+    if (flip) c.rotate(Math.PI);
+    c.rotate(-Math.PI * 0.22);
+    var s = size / 20;
+    c.translate(-0.2 * s, 1.2 * s);
+
+    _dolphinBodyPath(c, s);
+    c.fillStyle = DOL_MID;
+    c.fill();
+
+    // Single white eye dot
+    c.beginPath();
+    c.arc(5.5 * s, -2.2 * s, 0.45 * s, 0, Math.PI * 2);
+    c.fillStyle = '#fff';
+    c.fill();
+
+    c.restore();
+  }
+
+  // -------- STYLE 3: Geometric / angular polygonal — flat 3-tone --------
+  function drawDolphinStyle3(c, x, y, size, flip) {
+    c.save();
+    c.translate(x, y);
+    if (flip) c.rotate(Math.PI);
+    c.rotate(-Math.PI * 0.22);
+    var s = size / 20;
+    c.translate(-0.2 * s, 1.2 * s);
+
+    // Main faceted body — sharp-edged polygon
+    c.beginPath();
+    c.moveTo(8.4 * s, -0.4 * s);
+    c.lineTo(5 * s, -3.8 * s);
+    c.lineTo(-1 * s, -3.6 * s);
+    c.lineTo(-2.5 * s, -2.4 * s);
+    c.lineTo(-2.6 * s, -7 * s);                      // dorsal peak
+    c.lineTo(-4.2 * s, -2.5 * s);
+    c.lineTo(-7 * s, -0.2 * s);
+    c.lineTo(-10 * s, -0.8 * s);                     // upper fluke
+    c.lineTo(-7 * s, 1.8 * s);
+    c.lineTo(-9.6 * s, 3.6 * s);                     // lower fluke
+    c.lineTo(-4 * s, 2 * s);
+    c.lineTo(1 * s, 2.6 * s);
+    c.lineTo(6 * s, 1.4 * s);
+    c.lineTo(8.4 * s, -0.4 * s);
+    c.closePath();
+    c.fillStyle = DOL_MID; c.fill();
+    c.strokeStyle = DOL_DARK; c.lineWidth = 0.4 * s; c.lineJoin = 'miter'; c.stroke();
+
+    // Back-facet overlay (darker)
+    c.beginPath();
+    c.moveTo(5 * s, -3.8 * s);
+    c.lineTo(-1 * s, -3.6 * s);
+    c.lineTo(-2.5 * s, -2.4 * s);
+    c.lineTo(-4.2 * s, -2.5 * s);
+    c.lineTo(-2.6 * s, -7 * s);
+    c.closePath();
+    c.fillStyle = DOL_DARK; c.fill();
+
+    // Belly-facet overlay (lighter)
+    c.beginPath();
+    c.moveTo(-4 * s, 2 * s);
+    c.lineTo(1 * s, 2.6 * s);
+    c.lineTo(6 * s, 1.4 * s);
+    c.lineTo(8.4 * s, -0.4 * s);
+    c.lineTo(7 * s, -0.3 * s);
+    c.lineTo(4 * s, 1 * s);
+    c.lineTo(-1 * s, 1.6 * s);
+    c.lineTo(-4.2 * s, 1.6 * s);
+    c.closePath();
+    c.fillStyle = DOL_LIGHT; c.fill();
+
+    // Eye dot
+    c.beginPath();
+    c.arc(5.5 * s, -2.3 * s, 0.4 * s, 0, Math.PI * 2);
+    c.fillStyle = '#fff'; c.fill();
+
+    c.restore();
+  }
+
+  // -------- STYLE 4: Kawaii cute — chubby, big eye, small smile --------
+  function drawDolphinStyle4(c, x, y, size, flip) {
+    c.save();
+    c.translate(x, y);
+    if (flip) c.rotate(Math.PI);
+    c.rotate(-Math.PI * 0.2);
+    var s = size / 20;
+    c.translate(-0.2 * s, 1 * s);
+
+    // Chubby rounded body
+    c.beginPath();
+    c.moveTo(7 * s, 0 * s);
+    c.bezierCurveTo(7.5 * s, -2 * s, 6 * s, -3.5 * s, 3 * s, -4 * s);
+    c.bezierCurveTo(0 * s, -4.3 * s, -2 * s, -4 * s, -3 * s, -3.3 * s);
+    c.lineTo(-2 * s, -6 * s);                        // dorsal peak (shorter)
+    c.lineTo(-4 * s, -2.7 * s);
+    c.bezierCurveTo(-6 * s, -1.5 * s, -7.5 * s, -0.4 * s, -7 * s, 0.5 * s);
+    c.lineTo(-9 * s, -0.5 * s);
+    c.bezierCurveTo(-7.5 * s, 1 * s, -7 * s, 2 * s, -6.5 * s, 2.4 * s);
+    c.lineTo(-8.5 * s, 3.5 * s);
+    c.bezierCurveTo(-5 * s, 2.4 * s, -2 * s, 2.4 * s, 1 * s, 2.7 * s);
+    c.bezierCurveTo(4 * s, 2.8 * s, 6.5 * s, 1.8 * s, 7 * s, 0 * s);
+    c.closePath();
+    var g = c.createLinearGradient(0, -5 * s, 0, 3 * s);
+    g.addColorStop(0, '#4a8fcc');
+    g.addColorStop(0.7, '#70b3e7');
+    g.addColorStop(1, '#c5e4fb');
+    c.fillStyle = g; c.fill();
+    c.strokeStyle = '#1b4a78'; c.lineWidth = 0.45 * s; c.lineJoin = 'round'; c.stroke();
+
+    // BIG cute eye
+    c.beginPath();
+    c.arc(4.5 * s, -2 * s, 1.1 * s, 0, Math.PI * 2);
+    c.fillStyle = '#fff'; c.fill();
+    c.strokeStyle = '#1b4a78'; c.lineWidth = 0.3 * s; c.stroke();
+    c.beginPath();
+    c.arc(4.5 * s, -1.8 * s, 0.75 * s, 0, Math.PI * 2);
+    c.fillStyle = '#041124'; c.fill();
+    c.beginPath();
+    c.arc(4.75 * s, -2.1 * s, 0.28 * s, 0, Math.PI * 2);
+    c.fillStyle = '#fff'; c.fill();
+
+    // Tiny smile
+    c.beginPath();
+    c.arc(6 * s, 0.5 * s, 0.8 * s, 0.1 * Math.PI, 0.9 * Math.PI);
+    c.strokeStyle = '#1b4a78'; c.lineWidth = 0.35 * s; c.lineCap = 'round'; c.stroke();
+
+    c.restore();
+  }
+
+  // -------- STYLE 5: Line art — outline only, no fill --------
+  function drawDolphinStyle5(c, x, y, size, flip) {
+    c.save();
+    c.translate(x, y);
+    if (flip) c.rotate(Math.PI);
+    c.rotate(-Math.PI * 0.22);
+    var s = size / 20;
+    c.translate(-0.2 * s, 1.2 * s);
+
+    _dolphinBodyPath(c, s);
+    c.strokeStyle = DOL_MID;
+    c.lineWidth = 0.7 * s;
+    c.lineJoin = 'round';
+    c.stroke();
+
+    // Belly suggestion line
+    c.beginPath();
+    c.moveTo(6 * s, 1 * s);
+    c.bezierCurveTo(3 * s, 2.1 * s, -2 * s, 2.2 * s, -4 * s, 2.1 * s);
+    c.strokeStyle = DOL_LIGHT;
+    c.lineWidth = 0.45 * s;
+    c.lineCap = 'round';
+    c.stroke();
+
+    // Eye — small open circle
+    c.beginPath();
+    c.arc(5.3 * s, -2.1 * s, 0.45 * s, 0, Math.PI * 2);
+    c.strokeStyle = DOL_MID; c.lineWidth = 0.4 * s; c.stroke();
+    c.beginPath();
+    c.arc(5.3 * s, -2.1 * s, 0.15 * s, 0, Math.PI * 2);
+    c.fillStyle = DOL_MID; c.fill();
+
+    c.restore();
+  }
+
+  // -------- STYLE 6: Through a ring — dolphin jumping through a circular hoop --------
+  function drawDolphinStyle6(c, x, y, size, flip) {
+    c.save();
+    c.translate(x, y);
+    if (flip) c.rotate(Math.PI);
+    var s = size / 20;
+    c.translate(0, 0.5 * s);
+
+    // Ring (drawn in two halves so the dolphin can appear to pass through it)
+    // Lower half of ring — behind everything
+    c.save();
+    c.beginPath();
+    c.arc(0, 0, 7 * s, 0, Math.PI);
+    c.strokeStyle = DOL_LIGHT;
+    c.lineWidth = 0.8 * s;
+    c.stroke();
+    c.restore();
+
+    // Dolphin body — smaller, rotated to leap through
+    c.save();
+    c.rotate(-Math.PI * 0.18);
+    var ds = 0.7;  // scale down inside the ring
+    _dolphinBodyPath(c, s * ds);
+    var g = c.createLinearGradient(0, -5 * s, 0, 3 * s);
+    g.addColorStop(0, DOL_DARK);
+    g.addColorStop(1, DOL_LIGHT);
+    c.fillStyle = g; c.fill();
+    c.strokeStyle = DOL_STROKE; c.lineWidth = 0.45 * s; c.stroke();
+    c.beginPath();
+    c.arc(5.5 * s * ds, -2.2 * s * ds, 0.5 * s * ds, 0, Math.PI * 2);
+    c.fillStyle = '#fff'; c.fill();
+    c.restore();
+
+    // Upper half of ring — in front (over dolphin)
+    c.save();
+    c.beginPath();
+    c.arc(0, 0, 7 * s, Math.PI, 2 * Math.PI);
+    c.strokeStyle = DOL_LIGHT;
+    c.lineWidth = 0.8 * s;
+    c.stroke();
+    c.restore();
+
+    c.restore();
+  }
+
+  // -------- STYLE 7: Ink brush — rough, painterly, dark ink only --------
+  function drawDolphinStyle7(c, x, y, size, flip) {
+    c.save();
+    c.translate(x, y);
+    if (flip) c.rotate(Math.PI);
+    c.rotate(-Math.PI * 0.22);
+    var s = size / 20;
+    c.translate(-0.2 * s, 1.2 * s);
+
+    // Body as filled solid ink
+    _dolphinBodyPath(c, s);
+    c.fillStyle = '#102845';
+    c.fill();
+
+    // Texture: rough brush strokes of slightly lighter ink within body
+    c.save();
+    c.clip();  // clip subsequent strokes to the body shape
+    c.strokeStyle = 'rgba(60, 90, 135, 0.55)';
+    c.lineWidth = 0.45 * s;
+    c.lineCap = 'round';
+    for (var i = 0; i < 7; i++) {
+      var y0 = -4 * s + i * 1.1 * s;
+      c.beginPath();
+      c.moveTo(-8 * s, y0);
+      c.bezierCurveTo(-4 * s, y0 + 0.3 * s, 2 * s, y0 - 0.2 * s, 8 * s, y0);
+      c.stroke();
+    }
+    c.restore();
+
+    // Rough outline overlay
+    c.save();
+    c.globalCompositeOperation = 'source-over';
+    _dolphinBodyPath(c, s);
+    c.strokeStyle = '#041124';
+    c.lineWidth = 0.65 * s;
+    c.lineJoin = 'round';
+    c.stroke();
+    c.restore();
+
+    // Small ink-dot eye
+    c.beginPath();
+    c.arc(5.5 * s, -2.2 * s, 0.5 * s, 0, Math.PI * 2);
+    c.fillStyle = '#fff';
+    c.fill();
+
+    c.restore();
+  }
+
+  // -------- STYLE 8: Double dolphin — two small dolphins curving around each other --------
+  function drawDolphinStyle8(c, x, y, size, flip) {
+    c.save();
+    c.translate(x, y);
+    if (flip) c.rotate(Math.PI);
+    var s = size / 20;
+
+    // Helper to draw a mini-dolphin at given transform
+    function miniDolphin(tx, ty, rot, scale, dark) {
+      c.save();
+      c.translate(tx, ty);
+      c.rotate(rot);
+      c.scale(scale, scale);
+      _dolphinBodyPath(c, s);
+      var g = c.createLinearGradient(0, -5 * s, 0, 3 * s);
+      if (dark) {
+        g.addColorStop(0, DOL_DARK);
+        g.addColorStop(1, DOL_MID);
+      } else {
+        g.addColorStop(0, DOL_MID);
+        g.addColorStop(1, DOL_LIGHT);
+      }
+      c.fillStyle = g;
+      c.fill();
+      c.strokeStyle = DOL_STROKE;
+      c.lineWidth = 0.5 * s;
+      c.stroke();
+      // eye
+      c.beginPath();
+      c.arc(5.5 * s, -2.2 * s, 0.6 * s, 0, Math.PI * 2);
+      c.fillStyle = '#fff'; c.fill();
+      c.restore();
+    }
+    // Upper dolphin — leaping up-right
+    miniDolphin(-0.5 * s, -2 * s, -Math.PI * 0.28, 0.58, true);
+    // Lower dolphin — mirrored, leaping down-left
+    miniDolphin( 0.5 * s,  2 * s,  Math.PI * 0.72, 0.58, false);
+
+    c.restore();
+  }
+
+  // Dispatcher
+  function drawDolphinPip(c, x, y, size, flip) {
+    switch (activeDolphinStyle) {
+      case 2: return drawDolphinStyle2(c, x, y, size, flip);
+      case 3: return drawDolphinStyle3(c, x, y, size, flip);
+      case 4: return drawDolphinStyle4(c, x, y, size, flip);
+      case 5: return drawDolphinStyle5(c, x, y, size, flip);
+      case 6: return drawDolphinStyle6(c, x, y, size, flip);
+      case 7: return drawDolphinStyle7(c, x, y, size, flip);
+      case 8: return drawDolphinStyle8(c, x, y, size, flip);
+      default: return drawDolphinStyle1(c, x, y, size, flip);
+    }
+  }
+
   // Hare — face only: tall ears ABOVE the head, bottoms tangent with face top, smiling.
-  // Head is 10% larger than the earlier version for a more prominent face.
   function drawHarePip(c, x, y, size, flip) {
     c.save();
     c.translate(x, y);
     if (flip) c.rotate(Math.PI);
     var s = size / 20;
+    // Shift drawing so the visual centre (midpoint between ear tops and face bottom)
+    // lands on the pip's drawing origin → equal top and bottom margins on the card.
+    c.translate(0, 2.1 * s);
     var color = ANIMAL_COLORS.hearts;
     var light = '#c48a5a';
     var dark = '#5a2b0d';
 
-    // Face — bigger again (+10% on the previous pass). rx 4.62→5.082, ry 5.06→5.566.
+    // Face — rx 5.082*s, ry 5.566*s.
     var faceCy = 1 * s;
     var faceRx = 5.082 * s;
     var faceRy = 5.566 * s;
     var faceTopY = faceCy - faceRy;   // ≈ -4.57*s
 
-    // Ears: 15% wider, same centre-to-centre spacing → they reach further out on the head.
+    // Ears: 15% wider, same centre-to-centre spacing so they reach further out on the head.
     var earHalfW = 1.15 * s;
     var earHalfH = 3.2 * s;
     var earCy = faceTopY - earHalfH + 0.2 * s;   // bottoms tangent with head top
@@ -1719,10 +2028,10 @@ var Renderer = (function () {
     c.arc( 1.92 * s, 0, 0.2 * s, 0, Math.PI * 2);
     c.fill();
 
-    // Muzzle patch (slightly lighter around nose)
+    // Muzzle patch (lighter around nose) — 25% bigger than before.
     c.save();
     c.beginPath();
-    c.ellipse(0, 2.6 * s, 1.85 * s, 1.3 * s, 0, 0, Math.PI * 2);
+    c.ellipse(0, 2.6 * s, 2.3125 * s, 1.625 * s, 0, 0, Math.PI * 2);
     c.fillStyle = 'rgba(245, 225, 200, 0.55)';
     c.fill();
     c.restore();
@@ -1736,11 +2045,11 @@ var Renderer = (function () {
     c.fillStyle = '#3a1a0a';
     c.fill();
 
-    // Smile — more pronounced: wider arc, larger radius, thicker stroke
+    // Smile — more pronounced: wider arc, larger radius, 15% thicker stroke.
     c.beginPath();
     c.arc(0, 2.7 * s, 1.6 * s, 0.08 * Math.PI, 0.92 * Math.PI);
     c.strokeStyle = 'rgba(40, 20, 5, 0.9)';
-    c.lineWidth = 0.32 * s;
+    c.lineWidth = 0.368 * s;
     c.lineCap = 'round';
     c.stroke();
 
@@ -2234,7 +2543,7 @@ var Renderer = (function () {
     var isAnimals = isAnimalsSuit(suit);
     var useWideLayout = isCustom || isAnimals;
     var fontSize = 20;     // uniform 20px for classic pips (all ranks)
-    var customSize = (count === 1) ? 40 : 16;  // 1-cards get a +25% bump (32→40); counts 2+ stay at 16
+    var customSize = (count === 1) ? 46 : 16;  // 1-cards get +25% then another +15% (32→40→46)
     if (suit === 'hearts' && isCustom && count > 2) customSize = 15.2; // prisms 5% smaller for 3+
     // Hares (hearts) get a 25% size boost for counts 2-10; Cubs (clubs) get an
     // additional 10% on top of that (25% * 1.10 = 37.5%).
@@ -2245,8 +2554,8 @@ var Renderer = (function () {
       customSize = customSize * 1.25 * 1.10;
     }
 
-    // Classic 1-cards get a double-sized centre pip, also +25% on top (40→50)
-    var classicOneSize = (count === 1) ? 50 : fontSize;
+    // Classic 1-cards get a double-sized centre pip, +25% then +15% on top (40→50→57.5)
+    var classicOneSize = (count === 1) ? 57.5 : fontSize;
 
     // Use spread-out layouts for custom (laser) and animals suits
     if (useWideLayout && CUSTOM_PIP_LAYOUTS[count]) {
@@ -3374,6 +3683,8 @@ var Renderer = (function () {
     setBladeScheme: setBladeScheme,
     setBladeStyle: setBladeStyle,
     setCombinerScheme: setCombinerScheme,
+    setDolphinStyle: setDolphinStyle,
+    getDolphinStyle: getDolphinStyle,
     getSuitSkins: getSuitSkins,
     getSuitColor: getSuitColor,
     CARD_W: CARD_W,
