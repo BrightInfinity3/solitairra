@@ -22,6 +22,7 @@ Published to GitHub only (no Railway deployment yet). All leaderboard data is lo
 - `js/textures.js` - Texture generation helpers (unchanged)
 - `js/ui.js` - Screen management, drag/drop, options UI, preview rendering, **dynamic How-to-Play**
 - `js/save.js` - Leaderboard API client with localStorage fallback; Solitairra-specific keys
+- `card-viewer.html` - Reference page rendering all 10 ranks × 4 suits across every mode (Animals default, Classic, all Laser variants). Useful when iterating on pip design.
 
 ## Suit Skin System
 Options → "Card Suit Style" exposes two modes (Animals & Classic). Laser mode is kept in code but the button is commented out in `Solitairra.html`.
@@ -33,17 +34,18 @@ Options → "Card Suit Style" exposes two modes (Animals & Classic). Laser mode 
 | Laser    | Diodes   | Prisms  | Blades  | Combiners | No      | **Hidden** (code preserved) | Yes (scheme per suit + blade style) |
 
 ### Animal Pip Colors (single fixed scheme)
-- Dolphins (diamonds): blue `#1565C0`. Realistic bottlenose silhouette leaping right — bulbous melon, short rostrum, mouth "smile", blowhole, eye, pectoral fin, dorsal fin, curved tail fluke. Counter-shaded (dark back, pale belly).
-- Hares (hearts): saddle-brown `#8B4513`. **Face only** — tall ears with pink inner ear, round head, big eyes with glints, muzzle patch, nose, mouth, whiskers.
+- Dolphins (diamonds): blue `#1565C0`. Realistic bottlenose silhouette — bulbous melon, short rostrum, mouth "smile", blowhole, eye, pectoral fin, dorsal fin, curved tail fluke. **Rotated −0.28π so the body points up-and-right for a proper leaping pose** (previous horizontal version looked too much like a fish). Counter-shaded (dark back, pale belly).
+- Hares (hearts): saddle-brown `#8B4513`. **Face only**, smiling. Tall ears sit **above** the head — the bottom of each ear ellipse is tangent with the top of the face. Big eyes, muzzle patch, nose, curved smile arc, whiskers.
 - Spiders (spades): black `#1a1a1a`, 8 bent legs radiating, cephalothorax with yellow + white eye dots.
-- Cubs (clubs): dark brown `#3E2723`. **Face only** — round head with two round ears and lighter inner ears, muzzle patch, oval nose with highlight, eyes, mouth.
+- Cubs (clubs): dark brown `#3E2723`. **Face only**, smiling. Two round ears sit **above** the head with their bottoms tangent to the head top. Muzzle patch, oval nose with highlight, eyes, curved smile arc.
 
 All animal pips:
-- Normalize to `s = size / 20`, fit within roughly `14*s` visual footprint (same pip cell as Laser)
-- Use the CUSTOM_PIP_LAYOUTS wide spread (2-3-3-2 for rank 10, etc.) — same as Laser
-- Skip the corner Unicode symbol (the rank alone is shown in corners)
-- No ground shadow — silhouettes render cleanly on the card surface
-- Support the `flip` parameter (180° rotation)
+- Normalize to `s = size / 20`, fit within roughly `14*s` visual footprint (same pip cell as Laser).
+- **Hares and Cubs get a 25% size boost for counts 2-10** — in `renderPips()` when `isAnimals && (hearts|clubs) && count > 1`, `customSize *= 1.25`. Rank-1 stays at 32.
+- Use the CUSTOM_PIP_LAYOUTS wide spread (2-3-3-2 for rank 10, etc.) — same as Laser.
+- Skip the corner Unicode symbol (the rank alone is shown in corners).
+- No ground shadow — silhouettes render cleanly on the card surface.
+- Support the `flip` parameter (180° rotation).
 
 ### Renderer API additions (js/renderer.js)
 - `ANIMAL_COLORS` — per-suit color map
@@ -88,14 +90,15 @@ All three were renamed to avoid colliding with SoloTerra's data when both games 
 - Score: `saved_hearts × 1 + saved_spades × 2 + saved_clubs × 3`; 60 is a perfect game
 
 ## Title Screen
-- Title text "Solitairra" is rendered over a stylized card-back shape. The shape is a `.game-title::before` pseudo-element centered at `top:50%; left:50%; transform: translate(-50%, -50%)` so the card always sits exactly centered on the heading regardless of viewport size. The old `.title-card-fan` / `.title-card` divs were removed.
-- On landscape phones the pseudo-element is hidden (`display:none`).
+- `.title-stack` is a CSS-grid container with two children placed in the same grid cell: `.title-card-bg` (the card-back shape) and `.game-title` (the text). `place-items: center` handles the centering automatically — the text is always perfectly centered on the card regardless of viewport.
+- The text sits **in front of** the card: `.game-title` has `z-index: 1` and is emitted after the card in document order.
+- On landscape phones the card is hidden (`.title-card-bg { display: none }`).
 
 ## Card Back
 - Big centered gold "S" monogram (46–48px Cinzel 900, gold-foil fill with subtle outer glow). Replaces the former two-line "Soli / Tairra" text.
 
 ## Cache Busting
-`?v=3` on all CSS/JS tags in `Solitairra.html` (bumped after the pip redesign). Bump on each deploy.
+`?v=4` on all CSS/JS tags in `Solitairra.html` and `card-viewer.html`. Bump on each deploy.
 
 ## Deployment
 - **Not yet deployed.** Currently GitHub-only per user request ("publish to GitHub for now, not Railway")

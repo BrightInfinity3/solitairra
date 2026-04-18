@@ -1538,12 +1538,15 @@ var Renderer = (function () {
   //  No ground shadows — silhouettes only.
   // ================================================================
 
-  // Dolphin — realistic bottlenose, arched leaping pose, facing right.
-  // Coordinate frame: s = size / 20; +x = forward (head), -x = back (tail), +y = belly.
+  // Dolphin — realistic bottlenose, arched leaping pose, pointed up-and-right.
+  // Coordinate frame (pre-rotation): s = size / 20; +x = forward (head), -x = back (tail), +y = belly.
+  // After rotation, the head points up-and-right for a more upright leap.
   function drawDolphinPip(c, x, y, size, flip) {
     c.save();
     c.translate(x, y);
     if (flip) c.rotate(Math.PI);
+    // Rotate counter-clockwise so the head points upward (more upright leap, less horizontal)
+    c.rotate(-Math.PI * 0.28);
     var s = size / 20;
     var color = ANIMAL_COLORS.diamonds;
 
@@ -1626,7 +1629,7 @@ var Renderer = (function () {
     c.restore();
   }
 
-  // Hare — face only: two tall ears + round face
+  // Hare — face only: tall ears ABOVE the head, bottoms tangent with face top, smiling
   function drawHarePip(c, x, y, size, flip) {
     c.save();
     c.translate(x, y);
@@ -1636,34 +1639,43 @@ var Renderer = (function () {
     var light = '#c48a5a';
     var dark = '#5a2b0d';
 
-    // Ears — long upright ovals, slightly splayed, drawn first so face sits on top of their bases
-    function drawEar(cx, cy, tilt) {
+    // Face (round, slightly taller than wide). Center (0, 1*s), rx=4.2*s, ry=4.6*s → top at y=-3.6*s.
+    var faceCy = 1 * s;
+    var faceRy = 4.6 * s;
+    var faceTopY = faceCy - faceRy;   // = -3.6*s
+
+    // --- Ears sit ABOVE the face, bottom of each ear tangent with face top ---
+    // Ear half-height = 3.2*s → ear center y = faceTopY - 3.2*s (+ tiny overlap).
+    var earHalfW = 1 * s;
+    var earHalfH = 3.2 * s;
+    var earCy = faceTopY - earHalfH + 0.2 * s;  // tiny overlap so the ear visually meets the head
+    function drawEar(cx, tilt) {
       c.save();
-      c.translate(cx, cy);
+      c.translate(cx, earCy);
       c.rotate(tilt);
       // Outer ear
       c.beginPath();
-      c.ellipse(0, 0, 1.1 * s, 4 * s, 0, 0, Math.PI * 2);
+      c.ellipse(0, 0, earHalfW, earHalfH, 0, 0, Math.PI * 2);
       c.fillStyle = color;
       c.fill();
       c.strokeStyle = 'rgba(60, 30, 10, 0.65)';
       c.lineWidth = 0.4 * s;
       c.stroke();
-      // Inner ear (pink)
+      // Inner ear (pink) — sits toward the ear tip
       c.beginPath();
-      c.ellipse(0, 0.4 * s, 0.45 * s, 3 * s, 0, 0, Math.PI * 2);
+      c.ellipse(0, -0.3 * s, 0.4 * earHalfW * 2.5 / earHalfW * earHalfW, earHalfH * 0.72, 0, 0, Math.PI * 2);
       c.fillStyle = '#e59fae';
       c.fill();
       c.restore();
     }
-    drawEar(-2.2 * s, -3.2 * s, -0.22);
-    drawEar( 2.2 * s, -3.2 * s,  0.22);
+    drawEar(-1.5 * s, -0.12);   // slight outward tilt
+    drawEar( 1.5 * s,  0.12);
 
-    // Face (round, slightly taller than wide)
+    // Face on top of ear bases
     c.save();
     c.beginPath();
-    c.ellipse(0, 1 * s, 4.2 * s, 4.6 * s, 0, 0, Math.PI * 2);
-    var faceGrad = c.createRadialGradient(-1.2 * s, -0.3 * s, 0.4 * s, 0, 1 * s, 5 * s);
+    c.ellipse(0, faceCy, 4.2 * s, faceRy, 0, 0, Math.PI * 2);
+    var faceGrad = c.createRadialGradient(-1.2 * s, -0.3 * s, 0.4 * s, 0, faceCy, 5 * s);
     faceGrad.addColorStop(0, light);
     faceGrad.addColorStop(0.6, color);
     faceGrad.addColorStop(1, dark);
@@ -1707,16 +1719,11 @@ var Renderer = (function () {
     c.fillStyle = '#3a1a0a';
     c.fill();
 
-    // Mouth split (tiny Y shape below nose)
+    // Smile — upturned arc below the nose
     c.beginPath();
-    c.moveTo(0, 2.35 * s);
-    c.lineTo(0, 2.9 * s);
-    c.moveTo(0, 2.9 * s);
-    c.lineTo(-0.6 * s, 3.3 * s);
-    c.moveTo(0, 2.9 * s);
-    c.lineTo( 0.6 * s, 3.3 * s);
-    c.strokeStyle = 'rgba(40, 20, 5, 0.8)';
-    c.lineWidth = 0.22 * s;
+    c.arc(0, 2.4 * s, 1 * s, 0.15 * Math.PI, 0.85 * Math.PI);
+    c.strokeStyle = 'rgba(40, 20, 5, 0.85)';
+    c.lineWidth = 0.25 * s;
     c.lineCap = 'round';
     c.stroke();
 
@@ -1725,7 +1732,7 @@ var Renderer = (function () {
     c.strokeStyle = 'rgba(40, 20, 5, 0.55)';
     c.lineWidth = 0.18 * s;
     c.lineCap = 'round';
-    var wy = [2.3 * s, 2.7 * s];
+    var wy = [2.3 * s, 2.8 * s];
     for (var wi = 0; wi < wy.length; wi++) {
       c.beginPath();
       c.moveTo(-1 * s, wy[wi]);
@@ -1825,7 +1832,7 @@ var Renderer = (function () {
     c.restore();
   }
 
-  // Bear Cub — face only: round head with two round ears
+  // Bear Cub — face only: round head with two round ears sitting ABOVE the head, smiling
   function drawCubPip(c, x, y, size, flip) {
     c.save();
     c.translate(x, y);
@@ -1835,31 +1842,39 @@ var Renderer = (function () {
     var light = '#6d4c3a';
     var dark = '#1b0f08';
 
-    // Ears (drawn first so head overlaps their inner edges)
-    function drawEar(cx, cy) {
+    // Head first so we can anchor ears precisely to its top. Head center (0, 0.6*s), r=5*s.
+    var headCy = 0.6 * s;
+    var headR = 5 * s;
+    var headTopY = headCy - headR;   // = -4.4*s
+    var earR = 2.1 * s;
+    // Ear center y = head top − ear radius + tiny overlap so visually tangent
+    var earCy = headTopY - earR + 0.2 * s;
+
+    // Ears drawn first so head rim overlaps their lower rims slightly
+    function drawEar(cx) {
       c.save();
       c.beginPath();
-      c.arc(cx, cy, 2.1 * s, 0, Math.PI * 2);
+      c.arc(cx, earCy, earR, 0, Math.PI * 2);
       c.fillStyle = color;
       c.fill();
       c.strokeStyle = 'rgba(20, 10, 5, 0.7)';
       c.lineWidth = 0.4 * s;
       c.stroke();
-      // Inner ear — slightly offset toward center and down
+      // Inner ear — smaller lighter circle toward face
       c.beginPath();
-      c.arc(cx * 0.78, cy + 0.3 * s, 1.05 * s, 0, Math.PI * 2);
+      c.arc(cx * 0.78, earCy + 0.3 * s, 1.05 * s, 0, Math.PI * 2);
       c.fillStyle = '#b08870';
       c.fill();
       c.restore();
     }
-    drawEar(-4 * s, -3.5 * s);
-    drawEar( 4 * s, -3.5 * s);
+    drawEar(-2.6 * s);
+    drawEar( 2.6 * s);
 
-    // Head (large round face)
+    // Head
     c.save();
     c.beginPath();
-    c.arc(0, 0.6 * s, 5 * s, 0, Math.PI * 2);
-    var headGrad = c.createRadialGradient(-1.4 * s, -0.6 * s, 0.4 * s, 0, 0.6 * s, 6 * s);
+    c.arc(0, headCy, headR, 0, Math.PI * 2);
+    var headGrad = c.createRadialGradient(-1.4 * s, -0.6 * s, 0.4 * s, 0, headCy, 6 * s);
     headGrad.addColorStop(0, light);
     headGrad.addColorStop(0.6, color);
     headGrad.addColorStop(1, dark);
@@ -1894,16 +1909,11 @@ var Renderer = (function () {
     c.fill();
     c.restore();
 
-    // Mouth split (small Y)
+    // Smile — upturned arc below nose
     c.beginPath();
-    c.moveTo(0, 2.05 * s);
-    c.lineTo(0, 2.7 * s);
-    c.moveTo(0, 2.7 * s);
-    c.lineTo(-0.7 * s, 3.1 * s);
-    c.moveTo(0, 2.7 * s);
-    c.lineTo( 0.7 * s, 3.1 * s);
-    c.strokeStyle = 'rgba(20, 10, 5, 0.8)';
-    c.lineWidth = 0.25 * s;
+    c.arc(0, 2.3 * s, 1.2 * s, 0.1 * Math.PI, 0.9 * Math.PI);
+    c.strokeStyle = 'rgba(20, 10, 5, 0.85)';
+    c.lineWidth = 0.28 * s;
     c.lineCap = 'round';
     c.stroke();
 
@@ -2212,6 +2222,10 @@ var Renderer = (function () {
     var customSize = 16;   // uniform size for laser/animal pip counts 2+
     if (count === 1) customSize = 32; // 2x size for 1-cards only
     if (suit === 'hearts' && isCustom && count > 2) customSize = 15.2; // prisms 5% smaller for 3+
+    // Hares (hearts) and Cubs (clubs) in Animals mode: 25% bigger for counts 2-10
+    if (isAnimals && (suit === 'hearts' || suit === 'clubs') && count > 1) {
+      customSize = customSize * 1.25;
+    }
 
     // Classic 1-cards get double-sized center pip
     var classicOneSize = (count === 1) ? 40 : fontSize;
