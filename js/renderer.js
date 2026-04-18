@@ -3508,14 +3508,16 @@ var Renderer = (function () {
         // inside the pip (ears, head, body, fin…) fully opaque so inner
         // shapes get properly covered instead of bleeding through when the
         // placeholder is drawn semi-transparent.
-        var off = document.createElement('canvas');
-        off.width = CARD_W;
-        off.height = CARD_H;
-        var oc = off.getContext('2d');
-        drawAnimalPip(oc, CARD_W / 2, CARD_H / 2, phPipSize, suit, false);
+        // NOTE: name this `pipCanvas`, NOT `off` — `var off` would shadow the
+        // outer placeholder canvas and break the whole placeholder texture.
+        var pipCanvas = document.createElement('canvas');
+        pipCanvas.width = CARD_W;
+        pipCanvas.height = CARD_H;
+        var pipCtx = pipCanvas.getContext('2d');
+        drawAnimalPip(pipCtx, CARD_W / 2, CARD_H / 2, phPipSize, suit, false);
         c.save();
         c.globalAlpha = 0.55;
-        c.drawImage(off, 0, 0);
+        c.drawImage(pipCanvas, 0, 0);
         c.restore();
       } else if (isCustomSuit(suit) && suit === 'diamonds') {
         c.save();

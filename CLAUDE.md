@@ -116,7 +116,7 @@ c.restore();
 ```
 
 ## Cache Busting
-`?v=13` on all CSS/JS tags in `Solitairra.html` and `card-viewer.html`. Bump on each deploy.
+`?v=14` on all CSS/JS tags in `Solitairra.html` and `card-viewer.html`. Bump on each deploy.
 
 ## Deployment
 - **Not yet deployed.** Currently GitHub-only per user request ("publish to GitHub for now, not Railway")
