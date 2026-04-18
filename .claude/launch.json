@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "solitairra",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "3040", "--directory", "C:\\Users\\MK\\MKCC\\Solitairra"],
+      "port": 3040
+    }
+  ]
+}
