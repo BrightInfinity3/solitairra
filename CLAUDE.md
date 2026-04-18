@@ -22,7 +22,7 @@ Published to GitHub only (no Railway deployment yet). All leaderboard data is lo
 - `js/textures.js` - Texture generation helpers (unchanged)
 - `js/ui.js` - Screen management, drag/drop, options UI, preview rendering, **dynamic How-to-Play**
 - `js/save.js` - Leaderboard API client with localStorage fallback; Solitairra-specific keys
-- `card-viewer.html` - Reference page rendering all 10 ranks × 4 suits across every mode (Animals default, Classic, all Laser variants). Useful when iterating on pip design.
+- `card-viewer.html` - Reference page rendering all 14 ranks (1, A, 2-10, J, Q, K) × 4 suits across every mode (Animals default, Classic, all Laser variants). Useful when iterating on pip design.
 
 ## Suit Skin System
 Options → "Card Suit Style" exposes two modes (Animals & Classic). Laser mode is kept in code but the button is commented out in `Solitairra.html`.
@@ -34,14 +34,16 @@ Options → "Card Suit Style" exposes two modes (Animals & Classic). Laser mode 
 | Laser    | Diodes   | Prisms  | Blades  | Combiners | No      | **Hidden** (code preserved) | Yes (scheme per suit + blade style) |
 
 ### Animal Pip Colors (single fixed scheme)
-- Dolphins (diamonds): blue `#1565C0`. Realistic bottlenose silhouette — bulbous melon, short rostrum, mouth "smile", blowhole, eye, pectoral fin, dorsal fin, curved tail fluke. **Rotated −0.28π so the body points up-and-right for a proper leaping pose** (previous horizontal version looked too much like a fish). Counter-shaded (dark back, pale belly).
-- Hares (hearts): saddle-brown `#8B4513`. **Face only**, smiling. Tall ears sit **above** the head — the bottom of each ear ellipse is tangent with the top of the face. Big eyes, muzzle patch, nose, curved smile arc, whiskers.
+- Dolphins (diamonds): blue `#1565C0`. Miami-Dolphins-logo-inspired silhouette — rounded melon, short rostrum, big triangular dorsal fin, fluked tail, **one** large front pectoral fin curving down-forward, plus a smaller "back arm" crescent peeking out behind the chest. Rotated −0.2π so the body leaps up-and-right.
+- Hares (hearts): saddle-brown `#8B4513`. **Face only**, smiling. Tall ears sit **above** the head — the bottom of each ear ellipse is tangent with the top of the face. **Head is 10% larger than the first face-only pass** (rx 4.62*s, ry 5.06*s); smile arc is wider/thicker and more pronounced.
 - Spiders (spades): black `#1a1a1a`, 8 bent legs radiating, cephalothorax with yellow + white eye dots.
-- Cubs (clubs): dark brown `#3E2723`. **Face only**, smiling. Two round ears sit **above** the head with their bottoms tangent to the head top. Muzzle patch, oval nose with highlight, eyes, curved smile arc.
+- Cubs (clubs): dark brown `#3E2723`. **Face only**, smiling. Two round ears sit at the upper-side **head corners** (x=±3.8*s, y=-3.5*s) and are drawn **before** the head; the fully-opaque head then covers their inner halves so only the outer crescent shows — classic teddy-bear silhouette. Muzzle patch, oval nose with highlight, eyes, smile arc.
 
 All animal pips:
 - Normalize to `s = size / 20`, fit within roughly `14*s` visual footprint (same pip cell as Laser).
-- **Hares and Cubs get a 25% size boost for counts 2-10** — in `renderPips()` when `isAnimals && (hearts|clubs) && count > 1`, `customSize *= 1.25`. Rank-1 stays at 32.
+- **Hares get a 25% size boost for counts 2-10** in `renderPips()`.
+- **Cubs get an additional 10% on top of that (total 1.25 × 1.10 = 37.5%)** so the teddy-bear face reads clearly.
+- Rank-1 stays at the base 32px size for all animal pips.
 - Use the CUSTOM_PIP_LAYOUTS wide spread (2-3-3-2 for rank 10, etc.) — same as Laser.
 - Skip the corner Unicode symbol (the rank alone is shown in corners).
 - No ground shadow — silhouettes render cleanly on the card surface.
@@ -98,7 +100,7 @@ All three were renamed to avoid colliding with SoloTerra's data when both games 
 - Big centered gold "S" monogram (46–48px Cinzel 900, gold-foil fill with subtle outer glow). Replaces the former two-line "Soli / Tairra" text.
 
 ## Cache Busting
-`?v=4` on all CSS/JS tags in `Solitairra.html` and `card-viewer.html`. Bump on each deploy.
+`?v=5` on all CSS/JS tags in `Solitairra.html` and `card-viewer.html`. Bump on each deploy.
 
 ## Deployment
 - **Not yet deployed.** Currently GitHub-only per user request ("publish to GitHub for now, not Railway")
