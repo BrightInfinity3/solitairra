@@ -41,7 +41,7 @@ Options → "Card Suit Style" exposes two modes (Animals & Classic). Laser mode 
 
 All animal pips:
 - Normalize to `s = size / 20`, fit within roughly `14*s` visual footprint (same pip cell as Laser).
-- **Hares get a 25% size boost for counts 2-10**; **Cubs get 25 × 1.10 = 37.5%** so both faces read at pip size.
+- **Per-suit size boosts for counts 2-10**: Hares 25% · Dolphins 10% · Spiders 10% · Cubs 25 × 1.10 × 1.10 = 51.25%. Same multipliers apply to the face-card centre pip.
 - **Rank-1 pips get +25% then +15% (32 → 40 → 46)** across all suits; classic rank-1 scales 40 → 50 → 57.5 correspondingly.
 - **Face-card centre pip matches the 2-10 pip size for its suit** (diamonds/spades 16, hearts 20, clubs 22; classic 20).
 - Each animal pip function **translates the drawing so the visual centre (top-of-pip ↔ bottom-of-pip midpoint) sits on the pip's origin**, so rows of pips have equal top and bottom margins on the card. Example: hare translates by `(0, 2.1*s)` to compensate for the ears extending far above the face.
@@ -100,8 +100,23 @@ All three were renamed to avoid colliding with SoloTerra's data when both games 
 ## Card Back
 - Big centered gold "S" monogram (46–48px Cinzel 900, gold-foil fill with subtle outer glow). Replaces the former two-line "Soli / Tairra" text.
 
+## Foundation Placeholder — Translucency Handling
+An empty foundation stack draws its suit pip at ~55% opacity to look "ghosted". Animal pips are composed of multiple overlapping sub-shapes (ears behind head, body behind arm), so naïvely setting `globalAlpha = 0.55` causes the under-layers to bleed through the upper ones (the head looks translucent, the pectoral fin looks translucent).
+
+Fix: the animal placeholder branch renders the pip **opaquely to an offscreen canvas first**, then blits that single image at `globalAlpha = 0.55`. Inner shapes cover correctly, then the whole composite is made semi-transparent.
+
+```js
+var off = document.createElement('canvas');
+off.width = CARD_W; off.height = CARD_H;
+drawAnimalPip(off.getContext('2d'), CARD_W/2, CARD_H/2, phPipSize, suit, false);
+c.save();
+c.globalAlpha = 0.55;
+c.drawImage(off, 0, 0);
+c.restore();
+```
+
 ## Cache Busting
-`?v=11` on all CSS/JS tags in `Solitairra.html` and `card-viewer.html`. Bump on each deploy.
+`?v=13` on all CSS/JS tags in `Solitairra.html` and `card-viewer.html`. Bump on each deploy.
 
 ## Deployment
 - **Not yet deployed.** Currently GitHub-only per user request ("publish to GitHub for now, not Railway")

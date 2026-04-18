@@ -3140,13 +3140,21 @@ var Renderer = (function () {
     var fontSize = 20;     // uniform 20px for classic pips (all ranks)
     var customSize = (count === 1) ? 46 : 16;  // 1-cards get +25% then another +15% (32→40→46)
     if (suit === 'hearts' && isCustom && count > 2) customSize = 15.2; // prisms 5% smaller for 3+
-    // Hares (hearts) get a 25% size boost for counts 2-10; Cubs (clubs) get an
-    // additional 10% on top of that (25% * 1.10 = 37.5%).
+    // Per-suit size boosts for Animals mode, counts 2-10:
+    //   Hares (hearts): 25%
+    //   Dolphins (diamonds) & Spiders (spades): 10%
+    //   Cubs (clubs): 25% + 10% + 10% = 51.25% (stacked on the prior boosts)
     if (isAnimals && suit === 'hearts' && count > 1) {
       customSize = customSize * 1.25;
     }
+    if (isAnimals && suit === 'diamonds' && count > 1) {
+      customSize = customSize * 1.10;
+    }
+    if (isAnimals && suit === 'spades' && count > 1) {
+      customSize = customSize * 1.10;
+    }
     if (isAnimals && suit === 'clubs' && count > 1) {
-      customSize = customSize * 1.25 * 1.10;
+      customSize = customSize * 1.25 * 1.10 * 1.10;
     }
 
     // Classic 1-cards get a double-sized centre pip, +25% then +15% on top (40→50→57.5)
@@ -3284,8 +3292,10 @@ var Renderer = (function () {
     // Base (counts 2+) is 16; apply the same suit-specific scaling renderPips uses.
     var faceCardPipSize = 16;
     if (isCustomSuit(suit) && suit === 'hearts') faceCardPipSize = 15.2;
-    if (isAnimalsSuit(suit) && suit === 'hearts') faceCardPipSize = 16 * 1.25;
-    if (isAnimalsSuit(suit) && suit === 'clubs')  faceCardPipSize = 16 * 1.25 * 1.10;
+    if (isAnimalsSuit(suit) && suit === 'diamonds') faceCardPipSize = 16 * 1.10;
+    if (isAnimalsSuit(suit) && suit === 'hearts')   faceCardPipSize = 16 * 1.25;
+    if (isAnimalsSuit(suit) && suit === 'spades')   faceCardPipSize = 16 * 1.10;
+    if (isAnimalsSuit(suit) && suit === 'clubs')    faceCardPipSize = 16 * 1.25 * 1.10 * 1.10;
     var classicFacePipSize = 20;  // matches classic 2-10 font size
     if (isAnimalsSuit(suit)) {
       drawAnimalPip(c, cx, suitPipY, faceCardPipSize, suit, false);
@@ -3493,9 +3503,19 @@ var Renderer = (function () {
     if (suit) {
       var phPipSize = 48;
       if (isAnimalsSuit(suit)) {
+        // Render the pip opaquely to an offscreen canvas first, THEN blit
+        // that single image at reduced alpha. This keeps each sub-shape
+        // inside the pip (ears, head, body, fin…) fully opaque so inner
+        // shapes get properly covered instead of bleeding through when the
+        // placeholder is drawn semi-transparent.
+        var off = document.createElement('canvas');
+        off.width = CARD_W;
+        off.height = CARD_H;
+        var oc = off.getContext('2d');
+        drawAnimalPip(oc, CARD_W / 2, CARD_H / 2, phPipSize, suit, false);
         c.save();
         c.globalAlpha = 0.55;
-        drawAnimalPip(c, CARD_W / 2, CARD_H / 2, phPipSize, suit, false);
+        c.drawImage(off, 0, 0);
         c.restore();
       } else if (isCustomSuit(suit) && suit === 'diamonds') {
         c.save();
