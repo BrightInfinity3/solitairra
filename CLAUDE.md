@@ -24,25 +24,25 @@ Published to GitHub only (no Railway deployment yet). All leaderboard data is lo
 - `js/save.js` - Leaderboard API client with localStorage fallback; Solitairra-specific keys
 
 ## Suit Skin System
-Three modes in Options → "Card Suit Style":
+Options → "Card Suit Style" exposes two modes (Animals & Classic). Laser mode is kept in code but the button is commented out in `Solitairra.html`.
 
-| Mode     | Diamonds | Hearts  | Spades  | Clubs     | Default | Sub-variants? |
-|----------|----------|---------|---------|-----------|---------|----------------|
-| Animals  | Dolphins | Hares   | Spiders | Cubs      | **Yes** | No (single look per animal) |
-| Laser    | Diodes   | Prisms  | Blades  | Combiners | No      | Yes (scheme per suit + blade style) |
-| Classic  | ♦ Diamonds | ♥ Hearts | ♠ Spades | ♣ Clubs | No    | No |
+| Mode     | Diamonds | Hearts  | Spades  | Clubs     | Default | Visible in UI | Sub-variants? |
+|----------|----------|---------|---------|-----------|---------|---------------|----------------|
+| Animals  | Dolphins | Hares   | Spiders | Cubs      | **Yes** | Yes           | No (single look per animal) |
+| Classic  | ♦ Diamonds | ♥ Hearts | ♠ Spades | ♣ Clubs | No    | Yes           | No |
+| Laser    | Diodes   | Prisms  | Blades  | Combiners | No      | **Hidden** (code preserved) | Yes (scheme per suit + blade style) |
 
 ### Animal Pip Colors (single fixed scheme)
-- Dolphins (diamonds): blue `#1565C0` with lighter/darker gradient, belly counter-shading, eye glint
-- Hares (hearts): saddle-brown `#8B4513`, upright ears with pink inner ear, cotton-puff tail, front paw
-- Spiders (spades): black `#1a1a1a`, 8 bent legs radiating, cephalothorax with yellow + white eye dots
-- Cubs (clubs): dark brown `#3E2723`, round body with separate head + two round ears, lighter muzzle and inner ears
+- Dolphins (diamonds): blue `#1565C0`. Realistic bottlenose silhouette leaping right — bulbous melon, short rostrum, mouth "smile", blowhole, eye, pectoral fin, dorsal fin, curved tail fluke. Counter-shaded (dark back, pale belly).
+- Hares (hearts): saddle-brown `#8B4513`. **Face only** — tall ears with pink inner ear, round head, big eyes with glints, muzzle patch, nose, mouth, whiskers.
+- Spiders (spades): black `#1a1a1a`, 8 bent legs radiating, cephalothorax with yellow + white eye dots.
+- Cubs (clubs): dark brown `#3E2723`. **Face only** — round head with two round ears and lighter inner ears, muzzle patch, oval nose with highlight, eyes, mouth.
 
 All animal pips:
 - Normalize to `s = size / 20`, fit within roughly `14*s` visual footprint (same pip cell as Laser)
 - Use the CUSTOM_PIP_LAYOUTS wide spread (2-3-3-2 for rank 10, etc.) — same as Laser
 - Skip the corner Unicode symbol (the rank alone is shown in corners)
-- Drop shadow beneath each pip via `drawAnimalShadow()`
+- No ground shadow — silhouettes render cleanly on the card surface
 - Support the `flip` parameter (180° rotation)
 
 ### Renderer API additions (js/renderer.js)
@@ -55,14 +55,16 @@ All animal pips:
 - `getSuitColor(suit)` now returns `ANIMAL_COLORS[suit]` when suit is in animals mode
 
 ### UI changes (js/ui.js)
-- Adds `btn-mode-animals` handler; `setAllSuitMode` now supports `'animals'`
-- `resetSuitDefaults()` defaults all four suits to `animals` mode; laser variant options hidden on load
+- Adds `btn-mode-animals` handler; `setAllSuitMode` supports `'animals'` / `'laser'` / `'classic'`.
+- `btn-mode-laser` lookups are null-safe via `toggleMode()` helper so the deactivated button doesn't throw.
+- `resetSuitDefaults()` defaults all four suits to `animals` mode; laser variant options hidden on load.
 - `renderSuitPreview()` labels:
-  - Animals: `Dolphins (Diamonds)` etc.
-  - Laser: `Diodes (Diamonds)` etc. (unchanged from SoloTerra)
-  - **Classic: plain `Diamonds` / `Hearts` / `Spades` / `Clubs` — no parentheticals**
-- `SUIT_NAMES_BY_MODE` table + `suitNameFor()` / `currentSuitNames()` helpers used by both results-screen score formula and How-to-Play text
-- Score-formula on results screen now reads `Hares × 1 + Spiders × 2 + Cubs × 3` in Animals mode
+  - **Animals: plain `Dolphins` / `Hares` / `Spiders` / `Cubs` — no parentheticals.**
+  - **Classic: plain `Diamonds` / `Hearts` / `Spades` / `Clubs` — no parentheticals.**
+  - Laser: `Diodes (Diamonds)` etc. (two-line label, unchanged from SoloTerra).
+  - Cards are pulled tight under the label for single-line modes (labelGap reduced).
+- `SUIT_NAMES_BY_MODE` table + `suitNameFor()` / `currentSuitNames()` helpers used by both results-screen score formula and How-to-Play text.
+- Score-formula on results screen now reads `Hares × 1 + Spiders × 2 + Cubs × 3` in Animals mode.
 
 ### How to Play (Dynamic)
 - HTML holds an empty `<div id="rules-content">` — no static rule text
@@ -85,8 +87,15 @@ All three were renamed to avoid colliding with SoloTerra's data when both games 
 - Win: 10 of diamonds on its foundation
 - Score: `saved_hearts × 1 + saved_spades × 2 + saved_clubs × 3`; 60 is a perfect game
 
+## Title Screen
+- Title text "Solitairra" is rendered over a stylized card-back shape. The shape is a `.game-title::before` pseudo-element centered at `top:50%; left:50%; transform: translate(-50%, -50%)` so the card always sits exactly centered on the heading regardless of viewport size. The old `.title-card-fan` / `.title-card` divs were removed.
+- On landscape phones the pseudo-element is hidden (`display:none`).
+
+## Card Back
+- Big centered gold "S" monogram (46–48px Cinzel 900, gold-foil fill with subtle outer glow). Replaces the former two-line "Soli / Tairra" text.
+
 ## Cache Busting
-Reset to `?v=1` on all CSS/JS script tags in `Solitairra.html`. Bump on each deploy.
+`?v=3` on all CSS/JS tags in `Solitairra.html` (bumped after the pip redesign). Bump on each deploy.
 
 ## Deployment
 - **Not yet deployed.** Currently GitHub-only per user request ("publish to GitHub for now, not Railway")

@@ -182,11 +182,12 @@ var UI = (function () {
       showScreen('screen-title');
     });
 
-    // Suit mode toggle (Animals / Laser / Classic)
+    // Suit mode toggle (Animals / Classic; Laser button deactivated but code preserved)
     document.getElementById('btn-mode-animals').addEventListener('click', function () {
       setAllSuitMode('animals');
     });
-    document.getElementById('btn-mode-laser').addEventListener('click', function () {
+    var btnModeLaser = document.getElementById('btn-mode-laser');
+    if (btnModeLaser) btnModeLaser.addEventListener('click', function () {
       setAllSuitMode('laser');
     });
     document.getElementById('btn-mode-classic').addEventListener('click', function () {
@@ -359,13 +360,10 @@ var UI = (function () {
     Renderer.setBladeStyle('fan');
     Renderer.setCombinerScheme('black');
 
-    // Update UI buttons to reflect defaults
-    var modeAnimals = document.getElementById('btn-mode-animals');
-    var modeLaser = document.getElementById('btn-mode-laser');
-    var modeClassic = document.getElementById('btn-mode-classic');
-    if (modeAnimals) modeAnimals.classList.add('active');
-    if (modeLaser) modeLaser.classList.remove('active');
-    if (modeClassic) modeClassic.classList.remove('active');
+    // Update UI buttons to reflect defaults (laser button may be hidden/removed)
+    toggleMode('btn-mode-animals', true);
+    toggleMode('btn-mode-laser',   false);
+    toggleMode('btn-mode-classic', false);
     var laserOpts = document.getElementById('laser-options');
     if (laserOpts) laserOpts.style.display = 'none';
 
@@ -439,15 +437,19 @@ var UI = (function () {
   }
 
   // ---- Suit Options Helpers ----
+  function toggleMode(id, active) {
+    var el = document.getElementById(id);
+    if (el) el.classList.toggle('active', !!active);
+  }
   function setAllSuitMode(mode) {
     var suits = ['diamonds', 'hearts', 'spades', 'clubs'];
     for (var i = 0; i < suits.length; i++) {
       Renderer.setSuitSkin(suits[i], mode);
     }
-    // Update mode toggle buttons
-    document.getElementById('btn-mode-animals').classList.toggle('active', mode === 'animals');
-    document.getElementById('btn-mode-laser').classList.toggle('active', mode === 'laser');
-    document.getElementById('btn-mode-classic').classList.toggle('active', mode === 'classic');
+    // Update mode toggle buttons (laser button may be hidden/removed)
+    toggleMode('btn-mode-animals', mode === 'animals');
+    toggleMode('btn-mode-laser',   mode === 'laser');
+    toggleMode('btn-mode-classic', mode === 'classic');
     // Show laser variant options only in laser mode
     var laserOpts = document.getElementById('laser-options');
     if (laserOpts) laserOpts.style.display = mode === 'laser' ? '' : 'none';
@@ -463,7 +465,7 @@ var UI = (function () {
     var h = canvas.height;
     c.clearRect(0, 0, w, h);
 
-    // Suit names — swap based on active mode (Classic has no parentheticals)
+    // Suit names — animals + classic show only the primary name (no parentheticals)
     var suits = ['diamonds', 'hearts', 'spades', 'clubs'];
     var skins = Renderer.getSuitSkins().skins;
     var mode = skins.diamonds;
@@ -473,7 +475,7 @@ var UI = (function () {
       suitAltNames = { diamonds: '', hearts: '', spades: '', clubs: '' };
     } else if (mode === 'animals') {
       suitNames = { diamonds: 'Dolphins', hearts: 'Hares', spades: 'Spiders', clubs: 'Cubs' };
-      suitAltNames = { diamonds: '(Diamonds)', hearts: '(Hearts)', spades: '(Spades)', clubs: '(Clubs)' };
+      suitAltNames = { diamonds: '', hearts: '', spades: '', clubs: '' };
     } else {
       suitNames = { diamonds: 'Diodes', hearts: 'Prisms', spades: 'Blades', clubs: 'Combiners' };
       suitAltNames = { diamonds: '(Diamonds)', hearts: '(Hearts)', spades: '(Spades)', clubs: '(Clubs)' };
@@ -482,10 +484,11 @@ var UI = (function () {
     var cardW = 104;
     var cardH = 148;
     var gap = 18;
-    var labelLineH = 22; // main name line
-    var altLineH = 20;   // alt name line
-    var labelGap = 4;    // gap between labels and card
-    var labelsH = labelLineH + altLineH + labelGap; // total above-card space
+    var hasAltLine = !!suitAltNames[suits[0]];
+    var labelLineH = 22;                        // main name line
+    var altLineH = hasAltLine ? 20 : 0;         // alt name line (0 when absent)
+    var labelGap = hasAltLine ? 10 : 6;         // small gap under labels; tighter for single-line modes
+    var labelsH = labelLineH + altLineH + labelGap;
     var totalContentH = labelsH + cardH;
     var totalW = suits.length * cardW + (suits.length - 1) * gap;
     var startX = (w / 2 - totalW / 2);
@@ -544,11 +547,11 @@ var UI = (function () {
           Renderer.setSuitSkin(suits[i], prefs.skins[suits[i]]);
         }
       }
-      // Update mode toggle
+      // Update mode toggle (laser button may be hidden/removed)
       var mode = prefs.skins.diamonds || 'animals';
-      document.getElementById('btn-mode-animals').classList.toggle('active', mode === 'animals');
-      document.getElementById('btn-mode-laser').classList.toggle('active', mode === 'laser');
-      document.getElementById('btn-mode-classic').classList.toggle('active', mode === 'classic');
+      toggleMode('btn-mode-animals', mode === 'animals');
+      toggleMode('btn-mode-laser',   mode === 'laser');
+      toggleMode('btn-mode-classic', mode === 'classic');
       var laserOpts = document.getElementById('laser-options');
       if (laserOpts) laserOpts.style.display = mode === 'laser' ? '' : 'none';
     }

@@ -1535,18 +1535,11 @@ var Renderer = (function () {
   //  ANIMAL PIPS (Solitairra default suit style)
   //  Dolphins = diamonds, Hares = hearts, Spiders = spades, Cubs = clubs
   //  All normalize to s = size / 20, target visual footprint ~14*s
+  //  No ground shadows — silhouettes only.
   // ================================================================
 
-  function drawAnimalShadow(c, s) {
-    c.save();
-    c.fillStyle = 'rgba(0,0,0,0.18)';
-    c.beginPath();
-    c.ellipse(1 * s, 7.5 * s, 5 * s, 1.2 * s, 0, 0, Math.PI * 2);
-    c.fill();
-    c.restore();
-  }
-
-  // Dolphin — leaping, facing right, blue silhouette
+  // Dolphin — realistic bottlenose, arched leaping pose, facing right.
+  // Coordinate frame: s = size / 20; +x = forward (head), -x = back (tail), +y = belly.
   function drawDolphinPip(c, x, y, size, flip) {
     c.save();
     c.translate(x, y);
@@ -1554,84 +1547,86 @@ var Renderer = (function () {
     var s = size / 20;
     var color = ANIMAL_COLORS.diamonds;
 
-    // Soft shadow below
-    drawAnimalShadow(c, s);
-
-    // Body outline
+    // --- Main silhouette: rostrum → melon → back + dorsal → peduncle → fluke → belly → jaw ---
     c.beginPath();
-    c.moveTo(7 * s, 1.2 * s);                                          // rostrum tip
-    c.bezierCurveTo(5 * s, -0.2 * s, 4.5 * s, -2 * s, 2.5 * s, -2.6 * s);  // top of head
-    c.bezierCurveTo(0.5 * s, -3 * s, -0.5 * s, -3 * s, -1.2 * s, -2.6 * s); // back to dorsal base
-    c.lineTo(-0.6 * s, -5.8 * s);                                       // dorsal fin peak
-    c.lineTo(-3.2 * s, -2.4 * s);                                       // back of dorsal
-    c.bezierCurveTo(-4.5 * s, -2.1 * s, -5.5 * s, -1.8 * s, -5.8 * s, -2.4 * s); // pre-fluke
-    c.lineTo(-7.8 * s, -4 * s);                                         // upper fluke tip
-    c.lineTo(-5.8 * s, 0.2 * s);                                        // fluke inner notch
-    c.lineTo(-7.6 * s, 2.8 * s);                                        // lower fluke tip
-    c.bezierCurveTo(-5 * s, 2.2 * s, -3.5 * s, 2 * s, -2 * s, 2.3 * s); // belly back
-    c.bezierCurveTo(0 * s, 2.6 * s, 3 * s, 2.4 * s, 5 * s, 1.8 * s);   // belly to chin
-    c.bezierCurveTo(5.8 * s, 1.7 * s, 6.5 * s, 1.5 * s, 7 * s, 1.2 * s); // close rostrum
+    c.moveTo(8 * s, -0.2 * s);                                              // rostrum tip (slightly below head axis)
+    c.bezierCurveTo(7.3 * s, -1.2 * s, 6.8 * s, -1.5 * s, 6 * s, -1.7 * s); // top of rostrum curving back
+    c.bezierCurveTo(5 * s, -2 * s, 4.2 * s, -3 * s, 3.8 * s, -3.8 * s);     // pronounced bulging melon (bottlenose forehead)
+    c.bezierCurveTo(3 * s, -4.6 * s, 1.5 * s, -4.8 * s, 0 * s, -4.5 * s);   // over the top of the head
+    c.bezierCurveTo(-0.8 * s, -4.3 * s, -1.4 * s, -4 * s, -1.8 * s, -3.8 * s); // pre-dorsal base
+    c.bezierCurveTo(-1.5 * s, -5.2 * s, -1.4 * s, -6.4 * s, -1.8 * s, -7 * s);  // leading edge of dorsal fin
+    c.lineTo(-3.5 * s, -4 * s);                                             // dorsal fin trailing edge back to back
+    c.bezierCurveTo(-5 * s, -3.2 * s, -6.5 * s, -2.4 * s, -7 * s, -1.6 * s);   // along back to peduncle
+    c.bezierCurveTo(-7.2 * s, -1 * s, -7.4 * s, -0.4 * s, -7.4 * s, 0.2 * s);  // narrow wrist before flukes
+    c.lineTo(-9.5 * s, -1.2 * s);                                           // upper fluke tip
+    c.bezierCurveTo(-8.5 * s, 0 * s, -7.8 * s, 1 * s, -7.5 * s, 1.6 * s);   // fluke notch curve
+    c.lineTo(-9.3 * s, 3 * s);                                              // lower fluke tip
+    c.bezierCurveTo(-7 * s, 1.8 * s, -5 * s, 1.8 * s, -3 * s, 2 * s);       // underside of peduncle
+    c.bezierCurveTo(-1 * s, 2.3 * s, 1 * s, 2.2 * s, 3 * s, 1.6 * s);       // mid belly
+    c.bezierCurveTo(4.5 * s, 1.2 * s, 5.5 * s, 0.8 * s, 6.4 * s, 0.4 * s);  // lower jaw up to rostrum underside
+    c.bezierCurveTo(7 * s, 0.2 * s, 7.6 * s, 0.1 * s, 8 * s, -0.2 * s);     // close at rostrum tip
     c.closePath();
 
-    // Fill with vertical gradient (back lighter, belly darker? actually dolphins: back darker, belly lighter)
-    var bodyGrad = c.createLinearGradient(0, -5 * s, 0, 3 * s);
-    bodyGrad.addColorStop(0, '#1976D2');
-    bodyGrad.addColorStop(0.55, color);
-    bodyGrad.addColorStop(1, '#0D47A1');
+    // Back-to-belly gradient (dolphin counter-shading: dark back, light belly)
+    var bodyGrad = c.createLinearGradient(0, -6 * s, 0, 3 * s);
+    bodyGrad.addColorStop(0,    '#0D47A1');   // darkest back
+    bodyGrad.addColorStop(0.45, color);        // mid-flank (default blue)
+    bodyGrad.addColorStop(0.75, '#90CAF9');    // lower flank
+    bodyGrad.addColorStop(1,    '#E3F2FD');   // pale belly
     c.fillStyle = bodyGrad;
     c.fill();
-
-    // Outline
-    c.strokeStyle = 'rgba(13, 71, 161, 0.7)';
-    c.lineWidth = 0.5 * s;
+    c.strokeStyle = 'rgba(8, 50, 110, 0.75)';
+    c.lineWidth = 0.45 * s;
     c.lineJoin = 'round';
     c.stroke();
 
-    // Belly counter-shading (lighter patch on lower body)
+    // --- Pectoral fin (overlaid, hanging down-forward from chest) ---
     c.save();
     c.beginPath();
-    c.moveTo(5 * s, 1.8 * s);
-    c.bezierCurveTo(2 * s, 2.6 * s, -1 * s, 2.6 * s, -2 * s, 2.3 * s);
-    c.bezierCurveTo(-1 * s, 1.4 * s, 2 * s, 1.4 * s, 5 * s, 1.1 * s);
+    c.moveTo(3.5 * s, 1.2 * s);                                              // attach high on belly
+    c.bezierCurveTo(5 * s, 2 * s, 5.4 * s, 3.5 * s, 4.6 * s, 4.2 * s);       // down-forward curve
+    c.bezierCurveTo(4 * s, 4.6 * s, 3 * s, 4 * s, 2.3 * s, 3 * s);           // fin tip then back up
+    c.bezierCurveTo(2 * s, 2.4 * s, 2.4 * s, 1.5 * s, 2.8 * s, 1.2 * s);     // back to attachment
     c.closePath();
-    c.fillStyle = 'rgba(230, 245, 255, 0.55)';
+    var pecGrad = c.createLinearGradient(2 * s, 1 * s, 4.8 * s, 4.2 * s);
+    pecGrad.addColorStop(0, '#1565C0');
+    pecGrad.addColorStop(1, '#062F66');
+    c.fillStyle = pecGrad;
     c.fill();
-    c.restore();
-
-    // Highlight along back
-    c.save();
-    c.beginPath();
-    c.moveTo(3.5 * s, -2.1 * s);
-    c.bezierCurveTo(1 * s, -2.7 * s, -0.5 * s, -2.7 * s, -2 * s, -2.3 * s);
-    c.strokeStyle = 'rgba(255, 255, 255, 0.35)';
-    c.lineWidth = 0.5 * s;
+    c.strokeStyle = 'rgba(8, 50, 110, 0.75)';
+    c.lineWidth = 0.35 * s;
     c.stroke();
     c.restore();
 
-    // Eye
+    // Eye (small dot on the melon)
     c.beginPath();
-    c.arc(4.6 * s, -0.6 * s, 0.42 * s, 0, Math.PI * 2);
-    c.fillStyle = '#0a1929';
+    c.arc(5.3 * s, -2 * s, 0.45 * s, 0, Math.PI * 2);
+    c.fillStyle = '#061423';
     c.fill();
-    // Tiny eye glint
     c.beginPath();
-    c.arc(4.75 * s, -0.8 * s, 0.15 * s, 0, Math.PI * 2);
-    c.fillStyle = 'rgba(255,255,255,0.85)';
+    c.arc(5.45 * s, -2.2 * s, 0.15 * s, 0, Math.PI * 2);
+    c.fillStyle = 'rgba(255,255,255,0.9)';
     c.fill();
 
-    // Mouth line
+    // Mouth line (classic bottlenose curved smile running back from rostrum base)
     c.beginPath();
-    c.moveTo(6 * s, 1.3 * s);
-    c.lineTo(6.8 * s, 1.2 * s);
-    c.strokeStyle = 'rgba(10, 25, 41, 0.65)';
+    c.moveTo(7.3 * s, -0.5 * s);
+    c.bezierCurveTo(6.5 * s, 0.1 * s, 5.5 * s, 0.2 * s, 4.2 * s, 0 * s);
+    c.strokeStyle = 'rgba(8, 50, 110, 0.85)';
     c.lineWidth = 0.35 * s;
     c.lineCap = 'round';
     c.stroke();
 
+    // Blowhole (tiny dark dot on top of melon)
+    c.beginPath();
+    c.arc(2.6 * s, -4.2 * s, 0.22 * s, 0, Math.PI * 2);
+    c.fillStyle = 'rgba(8, 50, 110, 0.85)';
+    c.fill();
+
     c.restore();
   }
 
-  // Hare — sitting upright, ears tall, facing right, warm brown
+  // Hare — face only: two tall ears + round face
   function drawHarePip(c, x, y, size, flip) {
     c.save();
     c.translate(x, y);
@@ -1641,104 +1636,105 @@ var Renderer = (function () {
     var light = '#c48a5a';
     var dark = '#5a2b0d';
 
-    drawAnimalShadow(c, s);
-
-    // Body
-    c.save();
-    c.beginPath();
-    c.ellipse(-0.2 * s, 3.4 * s, 4.2 * s, 3.6 * s, 0, 0, Math.PI * 2);
-    var bodyGrad = c.createRadialGradient(-1 * s, 2 * s, 0.5 * s, 0, 3.4 * s, 5 * s);
-    bodyGrad.addColorStop(0, light);
-    bodyGrad.addColorStop(0.6, color);
-    bodyGrad.addColorStop(1, dark);
-    c.fillStyle = bodyGrad;
-    c.fill();
-    c.strokeStyle = 'rgba(60, 30, 10, 0.55)';
-    c.lineWidth = 0.45 * s;
-    c.stroke();
-    c.restore();
-
-    // Tail (fluffy puff at back)
-    c.save();
-    c.beginPath();
-    c.arc(-4 * s, 2.5 * s, 1.25 * s, 0, Math.PI * 2);
-    c.fillStyle = '#f5ead6';
-    c.fill();
-    c.strokeStyle = 'rgba(60, 30, 10, 0.35)';
-    c.lineWidth = 0.3 * s;
-    c.stroke();
-    c.restore();
-
-    // Head
-    c.save();
-    c.beginPath();
-    c.ellipse(1.3 * s, -1.3 * s, 2.4 * s, 2.2 * s, -0.05, 0, Math.PI * 2);
-    var headGrad = c.createRadialGradient(0.5 * s, -2 * s, 0.3 * s, 1.3 * s, -1.3 * s, 3 * s);
-    headGrad.addColorStop(0, light);
-    headGrad.addColorStop(0.8, color);
-    c.fillStyle = headGrad;
-    c.fill();
-    c.strokeStyle = 'rgba(60, 30, 10, 0.55)';
-    c.lineWidth = 0.45 * s;
-    c.stroke();
-    c.restore();
-
-    // Ears — long ovals, slightly splayed
+    // Ears — long upright ovals, slightly splayed, drawn first so face sits on top of their bases
     function drawEar(cx, cy, tilt) {
       c.save();
       c.translate(cx, cy);
       c.rotate(tilt);
+      // Outer ear
       c.beginPath();
-      c.ellipse(0, 0, 0.9 * s, 3.2 * s, 0, 0, Math.PI * 2);
+      c.ellipse(0, 0, 1.1 * s, 4 * s, 0, 0, Math.PI * 2);
       c.fillStyle = color;
       c.fill();
-      c.strokeStyle = 'rgba(60, 30, 10, 0.55)';
+      c.strokeStyle = 'rgba(60, 30, 10, 0.65)';
       c.lineWidth = 0.4 * s;
       c.stroke();
-      // Inner ear
+      // Inner ear (pink)
       c.beginPath();
-      c.ellipse(0.15 * s, 0.2 * s, 0.35 * s, 2.3 * s, 0, 0, Math.PI * 2);
-      c.fillStyle = '#d88f9a';
+      c.ellipse(0, 0.4 * s, 0.45 * s, 3 * s, 0, 0, Math.PI * 2);
+      c.fillStyle = '#e59fae';
       c.fill();
       c.restore();
     }
-    drawEar(0.5 * s, -5.4 * s, -0.18);
-    drawEar(2.2 * s, -5.2 * s, 0.12);
+    drawEar(-2.2 * s, -3.2 * s, -0.22);
+    drawEar( 2.2 * s, -3.2 * s,  0.22);
 
-    // Front paw (small bump at front of body)
+    // Face (round, slightly taller than wide)
     c.save();
     c.beginPath();
-    c.ellipse(3.4 * s, 5 * s, 1.1 * s, 1.4 * s, 0.15, 0, Math.PI * 2);
-    c.fillStyle = color;
+    c.ellipse(0, 1 * s, 4.2 * s, 4.6 * s, 0, 0, Math.PI * 2);
+    var faceGrad = c.createRadialGradient(-1.2 * s, -0.3 * s, 0.4 * s, 0, 1 * s, 5 * s);
+    faceGrad.addColorStop(0, light);
+    faceGrad.addColorStop(0.6, color);
+    faceGrad.addColorStop(1, dark);
+    c.fillStyle = faceGrad;
     c.fill();
-    c.strokeStyle = 'rgba(60, 30, 10, 0.45)';
-    c.lineWidth = 0.35 * s;
+    c.strokeStyle = 'rgba(60, 30, 10, 0.7)';
+    c.lineWidth = 0.45 * s;
     c.stroke();
     c.restore();
 
-    // Eye
-    c.beginPath();
-    c.arc(2.3 * s, -1.6 * s, 0.4 * s, 0, Math.PI * 2);
+    // Eyes (two dark dots with glints)
     c.fillStyle = '#0a0a0a';
+    c.beginPath();
+    c.arc(-1.6 * s, 0.2 * s, 0.55 * s, 0, Math.PI * 2);
     c.fill();
     c.beginPath();
-    c.arc(2.4 * s, -1.8 * s, 0.13 * s, 0, Math.PI * 2);
+    c.arc( 1.6 * s, 0.2 * s, 0.55 * s, 0, Math.PI * 2);
+    c.fill();
     c.fillStyle = 'rgba(255,255,255,0.9)';
+    c.beginPath();
+    c.arc(-1.45 * s, 0, 0.18 * s, 0, Math.PI * 2);
+    c.fill();
+    c.beginPath();
+    c.arc( 1.75 * s, 0, 0.18 * s, 0, Math.PI * 2);
     c.fill();
 
-    // Nose
+    // Muzzle patch (slightly lighter around nose)
+    c.save();
     c.beginPath();
-    c.arc(3.3 * s, -0.2 * s, 0.35 * s, 0, Math.PI * 2);
+    c.ellipse(0, 2.4 * s, 1.7 * s, 1.2 * s, 0, 0, Math.PI * 2);
+    c.fillStyle = 'rgba(245, 225, 200, 0.55)';
+    c.fill();
+    c.restore();
+
+    // Nose (small upside-down triangle)
+    c.beginPath();
+    c.moveTo(-0.45 * s, 1.9 * s);
+    c.lineTo( 0.45 * s, 1.9 * s);
+    c.lineTo(0, 2.35 * s);
+    c.closePath();
     c.fillStyle = '#3a1a0a';
     c.fill();
 
-    // Whisker hint (tiny line)
+    // Mouth split (tiny Y shape below nose)
     c.beginPath();
-    c.moveTo(3.3 * s, 0.1 * s);
-    c.lineTo(4.2 * s, 0.6 * s);
-    c.strokeStyle = 'rgba(40, 20, 5, 0.45)';
-    c.lineWidth = 0.2 * s;
+    c.moveTo(0, 2.35 * s);
+    c.lineTo(0, 2.9 * s);
+    c.moveTo(0, 2.9 * s);
+    c.lineTo(-0.6 * s, 3.3 * s);
+    c.moveTo(0, 2.9 * s);
+    c.lineTo( 0.6 * s, 3.3 * s);
+    c.strokeStyle = 'rgba(40, 20, 5, 0.8)';
+    c.lineWidth = 0.22 * s;
+    c.lineCap = 'round';
     c.stroke();
+
+    // Whiskers
+    c.save();
+    c.strokeStyle = 'rgba(40, 20, 5, 0.55)';
+    c.lineWidth = 0.18 * s;
+    c.lineCap = 'round';
+    var wy = [2.3 * s, 2.7 * s];
+    for (var wi = 0; wi < wy.length; wi++) {
+      c.beginPath();
+      c.moveTo(-1 * s, wy[wi]);
+      c.lineTo(-3.4 * s, wy[wi] - 0.2 * s);
+      c.moveTo( 1 * s, wy[wi]);
+      c.lineTo( 3.4 * s, wy[wi] - 0.2 * s);
+      c.stroke();
+    }
+    c.restore();
 
     c.restore();
   }
@@ -1750,8 +1746,6 @@ var Renderer = (function () {
     if (flip) c.rotate(Math.PI);
     var s = size / 20;
     var color = ANIMAL_COLORS.spades;
-
-    drawAnimalShadow(c, s);
 
     // Draw legs first (behind body). 4 per side, each with elbow bend.
     // Coordinates as [hipX, hipY, elbowX, elbowY, footX, footY]
@@ -1831,7 +1825,7 @@ var Renderer = (function () {
     c.restore();
   }
 
-  // Bear Cub — sitting, facing forward, dark brown
+  // Bear Cub — face only: round head with two round ears
   function drawCubPip(c, x, y, size, flip) {
     c.save();
     c.translate(x, y);
@@ -1841,63 +1835,33 @@ var Renderer = (function () {
     var light = '#6d4c3a';
     var dark = '#1b0f08';
 
-    drawAnimalShadow(c, s);
-
-    // Ears (behind head)
-    function drawEar(cx) {
+    // Ears (drawn first so head overlaps their inner edges)
+    function drawEar(cx, cy) {
       c.save();
       c.beginPath();
-      c.arc(cx, -5.6 * s, 1.9 * s, 0, Math.PI * 2);
+      c.arc(cx, cy, 2.1 * s, 0, Math.PI * 2);
       c.fillStyle = color;
       c.fill();
       c.strokeStyle = 'rgba(20, 10, 5, 0.7)';
       c.lineWidth = 0.4 * s;
       c.stroke();
-      // Inner ear
+      // Inner ear — slightly offset toward center and down
       c.beginPath();
-      c.arc(cx * 1.05, -5.2 * s, 0.95 * s, 0, Math.PI * 2);
-      c.fillStyle = '#a8856b';
+      c.arc(cx * 0.78, cy + 0.3 * s, 1.05 * s, 0, Math.PI * 2);
+      c.fillStyle = '#b08870';
       c.fill();
       c.restore();
     }
-    drawEar(-3.2 * s);
-    drawEar(3.2 * s);
+    drawEar(-4 * s, -3.5 * s);
+    drawEar( 4 * s, -3.5 * s);
 
-    // Body
+    // Head (large round face)
     c.save();
     c.beginPath();
-    c.ellipse(0, 3.2 * s, 4.5 * s, 3.9 * s, 0, 0, Math.PI * 2);
-    var bodyGrad = c.createRadialGradient(-1.2 * s, 1.8 * s, 0.4 * s, 0, 3.2 * s, 6 * s);
-    bodyGrad.addColorStop(0, light);
-    bodyGrad.addColorStop(0.6, color);
-    bodyGrad.addColorStop(1, dark);
-    c.fillStyle = bodyGrad;
-    c.fill();
-    c.strokeStyle = 'rgba(20, 10, 5, 0.7)';
-    c.lineWidth = 0.45 * s;
-    c.stroke();
-    c.restore();
-
-    // Front paws
-    c.save();
-    c.fillStyle = color;
-    c.strokeStyle = 'rgba(20, 10, 5, 0.55)';
-    c.lineWidth = 0.35 * s;
-    c.beginPath();
-    c.ellipse(-2.8 * s, 5.8 * s, 1.3 * s, 1.2 * s, 0, 0, Math.PI * 2);
-    c.fill(); c.stroke();
-    c.beginPath();
-    c.ellipse(2.8 * s, 5.8 * s, 1.3 * s, 1.2 * s, 0, 0, Math.PI * 2);
-    c.fill(); c.stroke();
-    c.restore();
-
-    // Head
-    c.save();
-    c.beginPath();
-    c.arc(0, -3 * s, 3.5 * s, 0, Math.PI * 2);
-    var headGrad = c.createRadialGradient(-1 * s, -4 * s, 0.3 * s, 0, -3 * s, 4 * s);
+    c.arc(0, 0.6 * s, 5 * s, 0, Math.PI * 2);
+    var headGrad = c.createRadialGradient(-1.4 * s, -0.6 * s, 0.4 * s, 0, 0.6 * s, 6 * s);
     headGrad.addColorStop(0, light);
-    headGrad.addColorStop(0.7, color);
+    headGrad.addColorStop(0.6, color);
     headGrad.addColorStop(1, dark);
     c.fillStyle = headGrad;
     c.fill();
@@ -1906,43 +1870,58 @@ var Renderer = (function () {
     c.stroke();
     c.restore();
 
-    // Muzzle (lighter patch)
+    // Muzzle (lighter patch, lower half of face)
     c.save();
     c.beginPath();
-    c.ellipse(0, -1.9 * s, 1.9 * s, 1.3 * s, 0, 0, Math.PI * 2);
-    c.fillStyle = '#c9a383';
+    c.ellipse(0, 2.2 * s, 2.6 * s, 1.9 * s, 0, 0, Math.PI * 2);
+    c.fillStyle = '#d8b593';
     c.fill();
     c.strokeStyle = 'rgba(20, 10, 5, 0.35)';
     c.lineWidth = 0.3 * s;
     c.stroke();
     c.restore();
 
-    // Nose (triangle)
+    // Nose (oval)
     c.save();
     c.beginPath();
-    c.moveTo(-0.65 * s, -2.6 * s);
-    c.lineTo(0.65 * s, -2.6 * s);
-    c.lineTo(0, -1.9 * s);
-    c.closePath();
+    c.ellipse(0, 1.4 * s, 0.9 * s, 0.65 * s, 0, 0, Math.PI * 2);
     c.fillStyle = '#0a0a0a';
     c.fill();
+    // Tiny highlight on nose
+    c.beginPath();
+    c.arc(-0.25 * s, 1.2 * s, 0.18 * s, 0, Math.PI * 2);
+    c.fillStyle = 'rgba(255,255,255,0.5)';
+    c.fill();
     c.restore();
+
+    // Mouth split (small Y)
+    c.beginPath();
+    c.moveTo(0, 2.05 * s);
+    c.lineTo(0, 2.7 * s);
+    c.moveTo(0, 2.7 * s);
+    c.lineTo(-0.7 * s, 3.1 * s);
+    c.moveTo(0, 2.7 * s);
+    c.lineTo( 0.7 * s, 3.1 * s);
+    c.strokeStyle = 'rgba(20, 10, 5, 0.8)';
+    c.lineWidth = 0.25 * s;
+    c.lineCap = 'round';
+    c.stroke();
 
     // Eyes
     c.fillStyle = '#0a0a0a';
     c.beginPath();
-    c.arc(-1.5 * s, -3.8 * s, 0.4 * s, 0, Math.PI * 2);
+    c.arc(-1.8 * s, -0.4 * s, 0.55 * s, 0, Math.PI * 2);
     c.fill();
     c.beginPath();
-    c.arc(1.5 * s, -3.8 * s, 0.4 * s, 0, Math.PI * 2);
+    c.arc( 1.8 * s, -0.4 * s, 0.55 * s, 0, Math.PI * 2);
     c.fill();
     // Eye glints
     c.fillStyle = 'rgba(255,255,255,0.85)';
     c.beginPath();
-    c.arc(-1.4 * s, -4 * s, 0.14 * s, 0, Math.PI * 2);
+    c.arc(-1.65 * s, -0.6 * s, 0.2 * s, 0, Math.PI * 2);
     c.fill();
     c.beginPath();
-    c.arc(1.6 * s, -4 * s, 0.14 * s, 0, Math.PI * 2);
+    c.arc( 1.95 * s, -0.6 * s, 0.2 * s, 0, Math.PI * 2);
     c.fill();
 
     c.restore();
@@ -2508,30 +2487,28 @@ var Renderer = (function () {
     }
     c.restore();
 
-    // Center "Soli" / "Tairra" in gold (two lines, 25% larger)
+    // Big centered "S" monogram on card back
     c.save();
-    c.font = '900 14px Cinzel, Georgia, serif';
     c.textAlign = 'center';
     c.textBaseline = 'middle';
     var midX = CARD_W / 2;
     var midY = CARD_H / 2;
-    var lineH = 16;
 
+    c.font = '900 46px Cinzel, Georgia, serif';
+    // Soft outer glow
     c.fillStyle = '#d4a849';
     c.globalAlpha = 0.08;
-    c.fillText('Soli', midX, midY - lineH / 2);
-    c.fillText('Tairra', midX, midY + lineH / 2);
-    c.font = '900 15px Cinzel, Georgia, serif';
+    c.fillText('S', midX, midY);
+    c.font = '900 48px Cinzel, Georgia, serif';
     c.globalAlpha = 0.06;
-    c.fillText('Soli', midX, midY - lineH / 2);
-    c.fillText('Tairra', midX, midY + lineH / 2);
+    c.fillText('S', midX, midY);
 
-    c.font = '900 14px Cinzel, Georgia, serif';
-    var goldG = Textures.goldFoilGradient(c, midX - 22, midY - 17, 44, 34);
+    // Gold foil fill
+    c.font = '900 46px Cinzel, Georgia, serif';
+    var goldG = Textures.goldFoilGradient(c, midX - 20, midY - 24, 40, 48);
     c.fillStyle = goldG;
-    c.globalAlpha = 0.50;
-    c.fillText('Soli', midX, midY - lineH / 2);
-    c.fillText('Tairra', midX, midY + lineH / 2);
+    c.globalAlpha = 0.65;
+    c.fillText('S', midX, midY);
     c.restore();
 
     var vignette = c.createRadialGradient(CARD_W / 2, CARD_H / 2, 10, CARD_W / 2, CARD_H / 2, CARD_W * 0.7);

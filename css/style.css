@@ -183,6 +183,23 @@ html, body {
   filter: drop-shadow(0 4px 20px var(--gold-glow)) drop-shadow(0 0 60px rgba(212, 160, 23, 0.3));
   line-height: 1;
   margin-bottom: 1.2em;
+  display: inline-block;
+  padding: 0.3em 0.6em;
+}
+.game-title::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 120px;
+  height: 168px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--card-back-1), var(--card-back-2));
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  opacity: 0.8;
+  transform: translate(-50%, -50%);
+  z-index: -1;
+  pointer-events: none;
 }
 
 .title-buttons {
@@ -222,24 +239,7 @@ html, body {
   color: var(--text-light);
 }
 
-/* Title card fan */
-.title-card-fan {
-  position: absolute;
-  top: 2rem;
-  left: 50%;
-  z-index: 1;
-  opacity: 0.8;
-}
-
-.title-card {
-  position: absolute;
-  width: 120px;
-  height: 168px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, var(--card-back-1), var(--card-back-2));
-  border: 4px solid rgba(255, 255, 255, 0.2);
-  transform: translate(-50%, -50%);
-}
+/* Title card now rendered via .game-title::before (centered on the title text) */
 
 /* Floating suit symbols */
 .floating-suits {
@@ -859,7 +859,6 @@ html, body {
 /* Tablets and small laptops */
 @media (max-width: 768px) {
   .game-title { font-size: 3.5rem; }
-  .title-card-fan { top: 1.5rem; }
   .title-buttons .btn { width: 240px; }
   .btn-play { font-size: 1.3rem; }
 
@@ -886,8 +885,7 @@ html, body {
 /* Phones */
 @media (max-width: 480px) {
   .game-title { font-size: 2.8rem; margin-bottom: 0.8em; }
-  .title-card-fan { top: 1rem; }
-  .title-card { width: 80px; height: 112px; }
+  .game-title::before { width: 80px; height: 112px; }
   .title-buttons .btn { width: 200px; }
   .title-buttons { gap: 0.6em; }
   .btn-play { font-size: 1.15rem; padding: 0.6em 2em; }
@@ -963,7 +961,7 @@ html, body {
 /* Landscape phones */
 @media (max-height: 500px) and (orientation: landscape) {
   .game-title { font-size: 2.2rem; margin-bottom: 0.5em; }
-  .title-card-fan { display: none; }
+  .game-title::before { display: none; }
   .title-buttons { gap: 0.4em; }
   .title-buttons .btn { width: 200px; }
   .btn-play { font-size: 1rem; padding: 0.4em 1.8em; }
