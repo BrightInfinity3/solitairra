@@ -41,9 +41,9 @@ Options → "Card Suit Style" exposes two modes (Animals & Classic). Laser mode 
 
 All animal pips:
 - Normalize to `s = size / 20`, fit within roughly `14*s` visual footprint (same pip cell as Laser).
-- **Per-suit size boosts for counts 2-10**: Animals get a baseline +10%, then per-suit: Hares 25% · Dolphins 10% · Spiders 10% · Cubs 25% × 1.10 × 1.10 = 51.25%. (Effective totals: Hares 37.5%, Dolphins/Spiders 21%, Cubs 66.375%.) Same per-suit multipliers apply to the face-card centre pip — but **the +10% baseline is for 2-10 pips only**, not face cards.
-- **Rank-1 pip sizes diverge by mode**: Laser 48.875 (57.5 × 0.85), Animals 66.125 (57.5 × 1.15), Classic 61.09375 (71.875 × 0.85). Underlying progression was 32 → 40 → 46 → 57.5 (animals/laser) and 40 → 50 → 57.5 → 71.875 (classic) before the latest mode-specific tweaks.
-- **Empty-stack (foundation placeholder) pip size**: Animals use 57.6 (+20% over the default 48); Laser and Classic stay at 48.
+- **Per-suit size boosts for counts 2-10**: Animals get a baseline +10%, then per-suit: Hares 25% · Dolphins 10% · Spiders 10% · Cubs 25% × 1.10 × 1.10 = 51.25%. (Effective totals: Hares 37.5%, Dolphins/Spiders 21%, Cubs 66.375%.) **The same +10% baseline applies to animal face-card (A/J/Q/K) centre pips**, so face-card pips track 2-10 pip sizing for their suit.
+- **Rank-1 pip sizes diverge by mode**: Laser 48.875 (57.5 × 0.85), Animals 72.7375 (57.5 × 1.15 × 1.10), Classic 61.09375 (71.875 × 0.85). Underlying progression was 32 → 40 → 46 → 57.5 (animals/laser) and 40 → 50 → 57.5 → 71.875 (classic) before the latest mode-specific tweaks.
+- **Empty-stack (foundation placeholder) pip size**: Animals use 69.12 (48 × 1.20 × 1.20, two compounded +20% boosts); Laser and Classic stay at 48.
 - **Face-card centre pip matches the 2-10 pip size for its suit** (diamonds/spades 16, hearts 20, clubs 22; classic 20).
 - Each animal pip function **translates the drawing so the visual centre (top-of-pip ↔ bottom-of-pip midpoint) sits on the pip's origin**, so rows of pips have equal top and bottom margins on the card. Example: hare translates by `(0, 2.1*s)` to compensate for the ears extending far above the face.
 - Use the CUSTOM_PIP_LAYOUTS wide spread (2-3-3-2 for rank 10, etc.) — same as Laser.
@@ -117,7 +117,7 @@ c.restore();
 ```
 
 ## Cache Busting
-`?v=16` on all CSS/JS tags in `Solitairra.html` and `card-viewer.html`. Bump on each deploy.
+`?v=17` on all CSS/JS tags in `Solitairra.html` and `card-viewer.html`. Bump on each deploy.
 
 ## Deployment
 - **Live on Ladybug Gamez** (Railway). Hosted alongside Laserman / Lango / 30 — NOT on `wbcgamez` where SoloTerra lives.
