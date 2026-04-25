@@ -119,5 +119,9 @@ c.restore();
 `?v=15` on all CSS/JS tags in `Solitairra.html` and `card-viewer.html`. Bump on each deploy.
 
 ## Deployment
-- **Not yet deployed.** Currently GitHub-only per user request ("publish to GitHub for now, not Railway")
-- If/when deployed alongside SoloTerra in `wbcgamez/public/`, the server would need a matching `/api/solitairra/leaderboard` endpoint and a separate data file at `data/solitairra-leaderboard.json` — not yet created
+- **Live on Ladybug Gamez** (Railway). Hosted alongside Laserman / Lango / 30 — NOT on `wbcgamez` where SoloTerra lives.
+- Source repo: `BrightInfinity3/solitairra` at `C:\Users\MK\MKCC\Solitairra\`
+- Deploy repo: `BrightInfinity3/ladybug-gamez` at `C:\Users\MK\MKCC\ladybug-gamez\` — Railway auto-deploys on push to `main`
+- **Deploy workflow**: copy `Solitairra.html → ladybug-gamez/public/solitairra/index.html`, plus `css/`, `js/`, `card-viewer.html`. Bump `?v=N` cache-bust in both source and deploy HTMLs. Commit + push both repos.
+- Leaderboard API: `/api/solitairra/leaderboard` (GET/POST/DELETE) defined in `ladybug-gamez/server.js`. Persists to `$RAILWAY_VOLUME_MOUNT_PATH/solitairra/solitairra-leaderboard.json` — **the volume is mounted and confirmed persistent** (verified: leaderboard survived a redeploy). Falls back to `./data/` locally without the volume.
+- `data/` is gitignored on the deploy repo (matches wbcgamez convention).
