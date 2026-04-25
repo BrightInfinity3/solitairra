@@ -6,6 +6,12 @@
       "runtimeExecutable": "python",
       "runtimeArgs": ["-m", "http.server", "3040", "--directory", "C:\\Users\\MK\\MKCC\\Solitairra"],
       "port": 3040
+    },
+    {
+      "name": "ladybug-gamez",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["start", "--prefix", "C:\\Users\\MK\\MKCC\\ladybug-gamez"],
+      "port": 3001
     }
   ]
 }
