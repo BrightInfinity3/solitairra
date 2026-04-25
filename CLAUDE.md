@@ -45,7 +45,7 @@ All animal pips:
 - **Rank-1 pip sizes diverge by mode**: Laser 48.875 (57.5 × 0.85), Animals 72.7375 (57.5 × 1.15 × 1.10), Classic 61.09375 (71.875 × 0.85). Underlying progression was 32 → 40 → 46 → 57.5 (animals/laser) and 40 → 50 → 57.5 → 71.875 (classic) before the latest mode-specific tweaks.
 - **Empty-stack (foundation placeholder) pip size**: Animals use 69.12 (48 × 1.20 × 1.20, two compounded +20% boosts); Laser and Classic stay at 48.
 - **Face-card centre pip matches the 2-10 pip size for its suit** (diamonds/spades 16, hearts 20, clubs 22; classic 20).
-- Each animal pip function **translates the drawing so the visual centre (top-of-pip ↔ bottom-of-pip midpoint) sits on the pip's origin**, so rows of pips have equal top and bottom margins on the card. Example: hare translates by `(0, 2.1*s)` to compensate for the ears extending far above the face.
+- Each animal pip function **translates the drawing so the visual centre (top-of-pip ↔ bottom-of-pip midpoint) sits on the pip's origin**, so rows of pips have equal top and bottom margins on the card. Examples: hare translates by `(0, 2.1*s)` to compensate for the ears extending far above the face; dolphin translates by `(0, -1.8*s)` pre-rotation to compensate for the body's rotated centre-of-mass landing below the origin (without it, the rank-1 dolphin and the empty-foundation dolphin sit visibly low). Centering correctness is empirically measurable: render the pip on a transparent canvas at any size, and `topGap` should equal `bottomGap` to within a pixel.
 - Use the CUSTOM_PIP_LAYOUTS wide spread (2-3-3-2 for rank 10, etc.) — same as Laser.
 - Skip the corner Unicode symbol (the rank alone is shown in corners).
 - No ground shadow — silhouettes render cleanly on the card surface.
@@ -117,7 +117,7 @@ c.restore();
 ```
 
 ## Cache Busting
-`?v=17` on all CSS/JS tags in `Solitairra.html` and `card-viewer.html`. Bump on each deploy.
+`?v=18` on all CSS/JS tags in `Solitairra.html` and `card-viewer.html`. Bump on each deploy.
 
 ## Deployment
 - **Live on Ladybug Gamez** (Railway). Hosted alongside Laserman / Lango / 30 — NOT on `wbcgamez` where SoloTerra lives.
