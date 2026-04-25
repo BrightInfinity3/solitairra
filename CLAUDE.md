@@ -42,7 +42,7 @@ Options → "Card Suit Style" exposes two modes (Animals & Classic). Laser mode 
 All animal pips:
 - Normalize to `s = size / 20`, fit within roughly `14*s` visual footprint (same pip cell as Laser).
 - **Per-suit size boosts for counts 2-10**: Hares 25% · Dolphins 10% · Spiders 10% · Cubs 25 × 1.10 × 1.10 = 51.25%. Same multipliers apply to the face-card centre pip.
-- **Rank-1 pips get +25% then +15% (32 → 40 → 46)** across all suits; classic rank-1 scales 40 → 50 → 57.5 correspondingly.
+- **Rank-1 pips get +25%, +15%, then another +25% (32 → 40 → 46 → 57.5)** across all suits; classic rank-1 scales 40 → 50 → 57.5 → 71.875 correspondingly.
 - **Face-card centre pip matches the 2-10 pip size for its suit** (diamonds/spades 16, hearts 20, clubs 22; classic 20).
 - Each animal pip function **translates the drawing so the visual centre (top-of-pip ↔ bottom-of-pip midpoint) sits on the pip's origin**, so rows of pips have equal top and bottom margins on the card. Example: hare translates by `(0, 2.1*s)` to compensate for the ears extending far above the face.
 - Use the CUSTOM_PIP_LAYOUTS wide spread (2-3-3-2 for rank 10, etc.) — same as Laser.
@@ -116,7 +116,7 @@ c.restore();
 ```
 
 ## Cache Busting
-`?v=14` on all CSS/JS tags in `Solitairra.html` and `card-viewer.html`. Bump on each deploy.
+`?v=15` on all CSS/JS tags in `Solitairra.html` and `card-viewer.html`. Bump on each deploy.
 
 ## Deployment
 - **Not yet deployed.** Currently GitHub-only per user request ("publish to GitHub for now, not Railway")
